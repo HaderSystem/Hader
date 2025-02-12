@@ -57,7 +57,7 @@ class _ControllerUploadFileState extends State<ControllerUploadFile> {
   // 3. تخزين رابط الصورة في Firebase Firestore
   Future saveFileUrlToFirebase(String fileUrl) async {
     try {
-      await FirebaseFirestore.instance.collection('students').add({
+      await FirebaseFirestore.instance.collection('student').add({
         'fileUrl': fileUrl,
         'uploadedAt': Timestamp.now(),
       });
