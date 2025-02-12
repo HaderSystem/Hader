@@ -151,19 +151,22 @@ class _ViewAdminState extends State<ViewAdmin> {
 }
  */
  import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 //import 'package:flutter_application_2/controllers/biometricVerification/c_uploadImage.dart';
 import 'package:flutter_application_2/controllers/c_students.dart';
 import 'package:flutter_application_2/models/m_student.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../controllers/biometricVerification/c_uploadImage.dart';
 
+/* 
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
-import '../controllers/biometricVerification/c_uploadImage.dart';
+import '../controllers/biometricVerification/c_uploadImage.dart'; */
 
 class ViewAdmin extends StatefulWidget {
   @override
@@ -171,7 +174,7 @@ class ViewAdmin extends StatefulWidget {
 }
 
 class _ViewAdminState extends State<ViewAdmin> {
-  final ControllerStudent _userController = ControllerStudent();
+  final ControllerStudent _studentController = ControllerStudent();
 
   Future<List<ModelStudent>> getStudents() async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("student").get();
@@ -179,7 +182,7 @@ class _ViewAdminState extends State<ViewAdmin> {
       student_id: doc["student_id"]??'', 
       FirstName: doc["FirstName"]?? '',  
       LastName: doc["LastName"]?? '', 
-     imageUrl: doc["LastName"]?? '', 
+    // imageUrl: doc["imageUrl"]?? '', 
 
     )).toList();
   }
@@ -224,20 +227,24 @@ class _ViewAdminState extends State<ViewAdmin> {
         },
       ),
        floatingActionButton: FloatingActionButton(
-        onPressed: () => _addUserDialog(PickedFile('imageUrl')),
+        onPressed: () => _addStudentDialog()
+      // {print('tt');} 
+      ,
         child: Icon(Icons.add),
         backgroundColor: Colors.green,
       ), 
     );
   }
 
-  void _addUserDialog(dynamic pickedFile) {
+  void _addStudentDialog() {
   final FirstNameController = TextEditingController();
   final LastNameController = TextEditingController();
   final student_idController = TextEditingController();
 
+
+
   // حذف التعريف الخاطئ لاسم المتغير
-  UploadImageScreenController imageController = UploadImageScreenController(); // إعادة تسميته لعدم التضارب
+   ControllerUploadFile imageController = ControllerUploadFile(); // إعادة تسميته لعدم التضارب
 
   showDialog(
   context: context,
@@ -255,18 +262,26 @@ class _ViewAdminState extends State<ViewAdmin> {
             // ✅ زر اختيار الصورة
             ElevatedButton(
               onPressed: () async {
-                await imageController.pickImage();
+              //  await imageController.pickImage();
+                final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+                 if (pickedFile != null) {
+    setState(() {
+    //  ControllerUploadFile = PlatformFile(pickedFile.path);
+    print("image null");
+    });
+  }
+              print("picked image");
               },
               child: Text(' اختر صورة للطالب'),
             ),
 
             // ✅ عرض الصورة المختارة
-            imageController.imageFile != null
+        /*     imageController.imageFile != null
                 ? SizedBox(
                     height: 100, // ✅ يمنع الـ Overflow
                     child: Image.file(imageController.imageFile!),
                   )
-                : Text('لم يتم اختيار صورة'),
+                : Text('لم يتم اختيار صورة'), */
           ],
         ),
       ),
@@ -279,19 +294,21 @@ class _ViewAdminState extends State<ViewAdmin> {
           },
           child: Text('Add'),
         ),
-      ],
+      ]
     );
+    
   },
-);
-  }}
+);         
+
+  }} 
 
 
 
 
 
 
+/*
 
-/* 
 class UploadImageScreen extends StatefulWidget {
   @override
   _UploadImageScreenState createState() => _UploadImageScreenState();
