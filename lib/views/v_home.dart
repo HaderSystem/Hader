@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/views/Students/v_studentLogin.dart';
+import 'package:flutter_application_2/views/Students/v_facrRec.dart';
 import 'package:flutter_application_2/views/v_admin.dart';
+
 
 
 class HomeView extends StatelessWidget {
@@ -25,6 +26,7 @@ class HomeView extends StatelessWidget {
                 backgroundColor: Colors.blue,
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               ),
+         
             ),
             SizedBox(height: 20),
             ElevatedButton.icon(
@@ -33,14 +35,30 @@ class HomeView extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ViewStudentLogin()),
+                  MaterialPageRoute(builder: (context) =>ViewAdmin()), //ViewStudentLogin()),
                 );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               ),
-            ),
+              
+            ),       
+             SizedBox(height: 20),
+
+             ElevatedButton.icon(
+              icon: Icon(Icons.school),
+              label: Text('بصمة الوجه'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ViewFaceRec()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              ),)
           ],
         ),
       ),

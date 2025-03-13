@@ -1,28 +1,42 @@
 class ModelStudent {
-final String student_id;
-final String FirstName;
-final String LastName;
-final String imageUrl;
+ int? studentid;
+final String firstname;
+final String lastname;
+final String imageURL;
+final String email;
+final String? password;
 //final String FaceRec;
 //final String FingerRec;
 
-  ModelStudent({required this.student_id, required this.FirstName, required this.LastName,  this.imageUrl='' /*  required this.FaceRec, required this.FingerRec */});
+  ModelStudent({ this.studentid, required this.firstname, required this.lastname,  this.imageURL='',required this.email,this.password /*  required this.FaceRec, required this.FingerRec */});
 
 
 
 
-factory ModelStudent.fromMap(Map<String,dynamic> data,String documentId){
-  return ModelStudent(student_id: documentId, FirstName: data['FirstName'], LastName: data ['LastName'],imageUrl:data['imageUrl']/* , FaceRec: data [''], FingerRec: data [''] */);
+factory ModelStudent.fromMap(Map<String,dynamic> map){
+  return ModelStudent (
+    studentid: map['studentid'] as int ,
+     firstname: map['firstname'],
+      lastname: map ['lastname'],
+      imageURL:map['imageURL'],
+      email: map['email'],
+    //  password: map['password']
+      /* ,
+       FaceRec: data [''],
+       FingerRec: data [''] */);
 }
 
 
 // تحويل Model إلى Map لتخزينه في Firebase
   Map<String, dynamic> toMap() {
     return {
-      'FirstName': FirstName,
-      'LastName': LastName,
-      'student_id' :student_id,
-      'imageUrl':imageUrl,
+      'firstname': firstname,
+      'lastname': lastname,
+      'email' :email,
+      'password':password,
+      
+    //  'studentid' :studentid,
+      //'imageURL':imageURL,
     };
   }
 }

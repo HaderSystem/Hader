@@ -1,214 +1,314 @@
-/* import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:flutter_application_2/controllers/c_students.dart';
-import 'package:flutter_application_2/models/m_student.dart';
 
-class ViewAdmin extends StatefulWidget {
-  @override
-  _ViewAdminState createState() => _ViewAdminState();
-}
+ import 'dart:io';
 
-class _ViewAdminState extends State<ViewAdmin> {
-  final ControllerStudent _userController = ControllerStudent();
-
-  Future<List<ModelStudent>> getStudents() async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("student").get();
-    return querySnapshot.docs.map((doc) => ModelStudent(
-      student_id: doc["student_id"] ?? '',
-      FirstName: doc["FirstName"] ?? '',
-      LastName: doc["LastName"] ?? '',
-      imageUrl: doc["imageUrl"] ?? '',
-    )).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('إدارة المستخدمين')),
-      body: FutureBuilder<List<ModelStudent>>(
-        future: getStudents(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('خطأ في جلب البيانات: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('لا يوجد مستخدمين بعد!'));
-          }
-
-          var students = snapshot.data!;
-
-          return GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-            itemCount: students.length,
-            itemBuilder: (context, i) {
-              return Card(
-                child: Column(
-                  children: [
-                    students[i].imageUrl.isNotEmpty
-                        ? Image.network(students[i].imageUrl, height: 100, width: 100, fit: BoxFit.cover)
-                        : Icon(Icons.person, size: 100),
-                    Text(students[i].FirstName, style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(students[i].LastName),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _addUserDialog(),
-        child: Icon(Icons.add),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-
-  void _addUserDialog() {
-    final FirstNameController = TextEditingController();
-    final LastNameController = TextEditingController();
-    final student_idController = TextEditingController();
-    File? _selectedImage;
-    final picker = ImagePicker();
-
-    Future<void> _pickImage() async {
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        setState(() {
-          _selectedImage = File(pickedFile.path);
-        });
-      }
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('إضافة طالب جديد'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: student_idController, decoration: InputDecoration(labelText: 'ID')),
-              TextField(controller: FirstNameController, decoration: InputDecoration(labelText: 'الاسم الأول')),
-              TextField(controller: LastNameController, decoration: InputDecoration(labelText: 'الاسم الأخير')),
-              SizedBox(height: 10),
-              _selectedImage != null
-                  ? Image.file(_selectedImage!, height: 100)
-                  : ElevatedButton(onPressed: _pickImage, child: Text("اختيار صورة")),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: Text('إلغاء')),
-          ElevatedButton(
-  onPressed: () async {
-    if (FirstNameController.text.isNotEmpty && LastNameController.text.isNotEmpty) {
-      // رفع الصورة إن وُجدت
-      String imageUrl = '';
-      if (UploadImageScreenController != null) {
-        String fileName = "users/${DateTime.now().millisecondsSinceEpoch}.jpg";
-        Reference ref = FirebaseStorage.instance.ref().child(fileName);
-        UploadTask uploadTask = ref.putFile(UploadImageScreenController!);
-        TaskSnapshot snapshot = await uploadTask;
-        imageUrl = await snapshot.ref.getDownloadURL();
-      }
-
-      await _userController.addUser(
-        ModelStudent(
-          student_id: student_idController.text,
-          FirstName: FirstNameController.text,
-          LastName: LastNameController.text,
-          imageUrl: imageUrl, // تمرير رابط الصورة هنا
-        ),
-      );
-      Navigator.pop(context);
-      setState(() {}); // تحديث الواجهة
-    }
-  },
-  child: Text('Add'),
-),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<String> _uploadImage(File image) async {
-    try {
-      String fileName = "students/${DateTime.now().millisecondsSinceEpoch}.jpg";
-      Reference ref = FirebaseStorage.instance.ref().child(fileName);
-      UploadTask uploadTask = ref.putFile(image);
-      TaskSnapshot snapshot = await uploadTask;
-      return await snapshot.ref.getDownloadURL();
-    } catch (e) {
-      print("🔥 خطأ أثناء رفع الصورة: $e");
-      return "";
-    }
-  }
-}
- */
- import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 //import 'package:flutter_application_2/controllers/biometricVerification/c_uploadImage.dart';
 import 'package:flutter_application_2/controllers/c_students.dart';
+import 'package:flutter_application_2/controllers/generatePassword.dart';
 import 'package:flutter_application_2/models/m_student.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../controllers/biometricVerification/c_uploadImage.dart';
 
-/* 
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-
-import '../controllers/biometricVerification/c_uploadImage.dart'; */
 
 class ViewAdmin extends StatefulWidget {
+   // const ViewAdmin({super.key});
+
   @override
   _ViewAdminState createState() => _ViewAdminState();
 }
 
+
 class _ViewAdminState extends State<ViewAdmin> {
-  final ControllerStudent _studentController = ControllerStudent();
+ File? _imageFile;
 
-  Future<List<ModelStudent>> getStudents() async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("student").get();
-    return querySnapshot.docs.map((doc) => ModelStudent(
-      student_id: doc["student_id"]??'', 
-      FirstName: doc["FirstName"]?? '',  
-      LastName: doc["LastName"]?? '', 
-    // imageUrl: doc["imageUrl"]?? '', 
+final studentDatabase = ControllerStudent();
 
-    )).toList();
-  }
+
+
+  final studentIDController =TextEditingController();
+    final FirstNameController =TextEditingController();
+  final LastNameController =TextEditingController();
+  final emailController =TextEditingController();
+   // final passwordController =TextEditingController();
+   // final imageURLcontroller =TextEditingController(uploadImage.path);
+
+String pass=generateRandomPassword(5);
+ // final passwordController = Text("data");
+
+insert () async{
+  try{
+final response =await Supabase.instance.client.from('student').insert({
+"studentid":studentIDController.text,
+"firstname":FirstNameController.text
+,
+"lastname":LastNameController,
+"email":emailController,
+"password" : pass,
+"imageURL" : UploadImage(),
+});
+if(response.error !=null){
+  print("Task added successfully");
+}
+else{    print("Error: ${response.error!.message}");
+}
+  } catch(e){ }
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('إدارة الطلاب')),
-      body: FutureBuilder<List<ModelStudent>>(
-        future: getStudents(),
+      body:
+      StreamBuilder(
+        //listens to this stream 
+        stream: studentDatabase.stream,
+
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-             print(" خطأ في جلب البيانات: ${snapshot.error}");
-  return Center(child: Text('خطأ في جلب البيانات: ${snapshot.error}'));
-
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('لا يوجد مستخدمين بعد!'));
+          if (!snapshot.hasData){
+            return const Center(child: CircularProgressIndicator(),);
           }
+          //loaded 
+          final students=snapshot.data!;
 
-          var students = snapshot.data!;
+          //list of students 
+          return ListView.builder(itemCount: students.length,itemBuilder: (context,index){
+//get each student
+final student=students[index];
 
-          return GridView.builder(
+//list title ui 
+return ListTile(title: Text('id: ${student.studentid}'),
+
+trailing:SizedBox(
+  width: 100,child: Row(children: [
+  //  Image(image: student.imageURL,),
+    //update button
+   // IconButton(onPressed: ()=>studentDatabase.updateStudent(student, student.firstname), icon:Icon( Icons.edit),),
+    IconButton(onPressed: ()=>deleteStudent(student), icon: Icon(Icons.delete)),
+
+
+
+/* IconButton(onPressed: (){
+
+/*  MenuBar
+ (children: [pragma('object')
+                   //  deleteStudent(student)
+
+                
+                  
+ */
+}, icon: Icon(Icons.menu)
+)
+, */
+
+  ],),
+)
+
+/* 
+/* IconButton(onPressed: (){child}, icon: const Icon(Icons.menu))*/
+Drawer(child: ListView(/* padding: EdgeInsets.zero */
+children: <Widget>[DrawerHeader(child: /* Text('Edit') */Icon(Icons.menu),
+),ListTile(title: Text('delete'),
+onTap: (){studentDatabase.deleteStudent(student);
+},)],),)
+
+ */
+ );
+          },
+          
+          );
+        },
+      )
+      
+     ,
+
+
+      //add student button
+
+       floatingActionButton: FloatingActionButton(
+        onPressed: () => showDialog(
+          context: context,
+          
+            builder: (BuildContext context) {
+              return AlertDialog(content: Column(
+                children: 
+                    [//TextField( controller:studentIDController,decoration: InputDecoration(labelText:"id: ${studentIDController }" ) ,),
+              TextField( controller:FirstNameController,decoration: InputDecoration(labelText:"first name" ),),
+                    TextField( controller:LastNameController,decoration: InputDecoration(labelText:"last name" ),),
+             TextField( controller:emailController,decoration: InputDecoration(labelText:"email" ),),
+                    //pick image button
+            ElevatedButton(onPressed:pickImage , child: Text("Picked Image"),),
+            //   _imageFile !=null? Image.file(_imageFile!):const Text("no image selected"),
+              
+                    
+                    ]),
+               actions: [
+                TextButton(onPressed: (){Navigator.pop(context);/* studentIDController.clear(); */}, child: Text('cancel'),),
+               //   TextButton(onPressed: () => Navigator.pop(context), child: Text('إلغاء')),
+                  ElevatedButton(
+                    onPressed: () async {
+                        final ControllerStudent _studentController = ControllerStudent();
+                    //  if (studentIDController.text.isNotEmpty && FirstNameController.text.isNotEmpty) {
+                        try { 
+                          UploadImage();
+                        print(pass);
+                          //studentDatabase.uploadImage;
+              print('object');            
+                    Navigator.pop(context);
+                        print('12');
+              
+                          await _studentController.createStudent(
+                          ModelStudent(/* studentid: studentIDController.text ,*/
+                           firstname: FirstNameController.text, 
+                           lastname: LastNameController.text,
+                           email: emailController.text,
+                           password:pass,// passwordController,
+                          /*   imageURL:  */   ),
+                        );
+
+                        } catch(e){print('an error $e');}
+                      }
+                  //  }
+                  // 
+                  ,
+                    child: Text('Add'),),]);
+
+            }
+          ), child: Icon(Icons.add)
+
+        )
+
+    );
+  
+   
+  }
+  
+
+
+ Future pickImage() async{
+    //picker
+    final ImagePicker picker=ImagePicker();
+
+    //pick from gallery
+    final XFile? image =await picker.pickImage(source: ImageSource.gallery);
+    
+    //update image preview
+    if (image !=null ){
+      setState(() {
+        _imageFile =File(image.path);
+      });
+    } 
+    
+  }
+
+
+
+
+  
+  //upload
+  
+Future UploadImage() async{
+ // if (_imageFile ==null) return;
+
+
+  //generate a unique file path
+  final fileName='${DateTime.now().millisecondsSinceEpoch}.jpg';
+   //   final fileBytes = await _imageFile?.readAsBytes(); // قراءة بيانات الصورة
+
+
+       //   final response = await Supabase.instance.client.storage.from('HaderSystem').upload(fileName, fileBytes as File); // رفع الصورة
+  //final resonse = await Supabase.instance.client.storage.getBucket(fileName); // الحصول على الرابط العام للصورة
+
+//print(fileBytes);
+
+  final path ='StudentsImages/${fileName}';
+
+  //upload the image to supabase storage
+  await Supabase.instance.client.storage
+  .from('HaderSystem')
+  .upload(path, _imageFile!).then((value)=>ScaffoldMessenger.of(context)/* .showSnackBar(const SnackBar(content:Text("Image upload successful !"))) */);
+
+
+//get url 
+final getURL= await Supabase.instance.client.storage
+  .from('HaderSystem').getPublicUrl(path);
+
+     await Supabase.instance.client
+        .from('student') // تأكد من أن اسم الجدول صحيح
+        .update({
+          'imageURL': getURL, // اسناد الرابط للعمود
+        })
+        .eq('studentid',25
+      ); // شرط الwhere 
+} 
+
+
+void deleteStudent(ModelStudent student ){
+
+showDialog(
+          context: context,
+          
+            builder: (BuildContext context) {
+              return AlertDialog(title: Text('Delete Student'),content:
+              TextField( controller:
+              
+              studentIDController,),
+                    
+                  
+                actions: [
+                TextButton(onPressed: (){
+                  studentIDController.clear();
+                
+                  Navigator.pop(context);
+                  
+                  /* studentIDController.clear(); */},
+                    child: Text('cancel'),),
+               //   TextButton(onPressed: () => Navigator.pop(context), child: Text('إلغاء')),
+                
+                
+                 //save button
+                  ElevatedButton(
+                    onPressed: ()  {
+     
+     studentDatabase.deleteStudent(student);
+
+     Navigator.pop(context);
+     studentIDController.clear();
+
+                      },
+                  
+                    child: Text('delete'),),
+                  
+
+
+          /* ElevatedButton(onPressed: ()  {
+studentDatabase.updateStudent(ModelStudent(studentid:student.studentid ,firstname: 'nana', lastname: 'nana',imageURL: 'nana'), 
+  '${UploadImage()}');
+
+     Navigator.pop(context);
+     studentIDController.clear();
+
+  },child: Text('update'),),
+   */
+
+  ]
+ ) ;
+}
+          );
+      //     child: Icon(Icons.add);
+
+        
+
+}
+  
+}
+  
+  
+  
+
+        /*    GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-            itemCount: students.length,
+        //    itemCount: student.length,
             itemBuilder: (context, i) {
               return Card(
                 child: Container(
@@ -216,25 +316,28 @@ class _ViewAdminState extends State<ViewAdmin> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(students[i].FirstName, style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(students[i].LastName),
+                      Container()
+                   //   Text(students[i].FirstName, style: TextStyle(fontWeight: FontWeight.bold)),
+                     // Text(students[i].LastName),
                     ],
                   ),
-                ),
+                ), 
               );
             },
-          );
-        },
-      ),
-       floatingActionButton: FloatingActionButton(
+          )
+    );*/
+    
+
+      
+    /*    floatingActionButton: FloatingActionButton(
         onPressed: () => _addStudentDialog()
       // {print('tt');} 
       ,
         child: Icon(Icons.add),
         backgroundColor: Colors.green,
       ), 
-    );
-  }
+    ); */
+  /* 
 
   void _addStudentDialog() {
   final FirstNameController = TextEditingController();
@@ -242,11 +345,11 @@ class _ViewAdminState extends State<ViewAdmin> {
   final student_idController = TextEditingController();
 
 
-
+  }
   // حذف التعريف الخاطئ لاسم المتغير
    ControllerUploadFile imageController = ControllerUploadFile(); // إعادة تسميته لعدم التضارب
-
-  showDialog(
+ */
+  /* showDialog(
   context: context,
   builder: (context) {
     return AlertDialog(
@@ -264,7 +367,7 @@ class _ViewAdminState extends State<ViewAdmin> {
               onPressed: () async {
               //  await imageController.pickImage();
                 final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-                 if (pickedFile != null) {
+                  if (pickedFile != null) {
     setState(() {
     //  ControllerUploadFile = PlatformFile(pickedFile.path);
     print("image null");
@@ -297,13 +400,12 @@ class _ViewAdminState extends State<ViewAdmin> {
       ]
     );
     
-  },
-);         
+  }, *    
 
   }} 
 
 
-
+ */
 
 
 
@@ -330,80 +432,6 @@ Future<void> _pickImage() async {
 }
  */
 
-
-
-
-
-
-/* 
-
-
-
-
-
-
- /*  Future<void> _pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera); // أو ImageSource.gallery
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      }); */
-
-      await _uploadImage();
-    }
-  }
-
-  Future<void> _uploadImage() async {
-    if (_image == null) return;
-
-    try {
-      String fileName = "users/${DateTime.now().millisecondsSinceEpoch}.jpg";
-      Reference ref = storage.ref().child(fileName);
-      UploadTask uploadTask = ref.putFile(_image!);
-
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadURL = await snapshot.ref.getDownloadURL();
-
-      await firestore.collection("face_images").add({
-        "image_url": downloadURL,
-        "timestamp": FieldValue.serverTimestamp(),
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("تم رفع الصورة بنجاح!"))
-      );
-    } catch (e) {
-      print("حدث خطأ أثناء الرفع: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("فشل في رفع الصورة"))
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("رفع صورة")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _image != null
-                ? Image.file(_image!, height: 200)
-                : Text("لم يتم تحديد صورة"),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _pickImage,
-              child: Text("اختر صورة"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-} */
- 
 
 /* import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -645,4 +673,5 @@ Widget _buildStudentList() {
 class _userController {
   static getStudentsStream() {}
 }
- */
+
+*/

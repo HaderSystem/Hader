@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/* import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ViewStudentLogin extends StatefulWidget {
@@ -45,7 +45,7 @@ class _ViewStudentLoginState extends State<ViewStudentLogin> {
     );
   }
 }
-
+ */
 /* 
 
 import 'package:flutter/material.dart';
