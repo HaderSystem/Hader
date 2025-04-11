@@ -1,5 +1,7 @@
 
- import 'dart:io';
+ import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 //import 'package:flutter_application_2/controllers/biometricVerification/c_uploadImage.dart';
@@ -8,6 +10,8 @@ import 'package:flutter_application_2/controllers/generatePassword.dart';
 import 'package:flutter_application_2/models/m_student.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_application_2/auth/auth_service.dart';
+
 
 
 
@@ -68,15 +72,20 @@ else{    print("Error: ${response.error!.message}");
           if (!snapshot.hasData){
             return const Center(child: CircularProgressIndicator(),);
           }
+
           //loaded 
           final students=snapshot.data!;
 
           //list of students 
           return ListView.builder(itemCount: students.length,itemBuilder: (context,index){
+
+            try{ 
 //get each student
 final student=students[index];
 
+
 //list title ui 
+
 return ListTile(title: Text('id: ${student.studentid}'),
 
 trailing:SizedBox(
@@ -85,8 +94,6 @@ trailing:SizedBox(
     //update button
    // IconButton(onPressed: ()=>studentDatabase.updateStudent(student, student.firstname), icon:Icon( Icons.edit),),
     IconButton(onPressed: ()=>deleteStudent(student), icon: Icon(Icons.delete)),
-
-
 
 /* IconButton(onPressed: (){
 
@@ -101,7 +108,10 @@ trailing:SizedBox(
 )
 , */
 
-  ],),
+  ],//trailing
+            
+  
+  ),
 )
 
 /* 
@@ -114,10 +124,13 @@ onTap: (){studentDatabase.deleteStudent(student);
 
  */
  );
+            }//try
+
+            catch(e){  return ListTile(title: Text('Error in builder: $e'));}
           },
           
           );
-        },
+        }, //builder
       )
       
      ,
@@ -131,11 +144,12 @@ onTap: (){studentDatabase.deleteStudent(student);
           
             builder: (BuildContext context) {
               return AlertDialog(content: Column(
+              
                 children: 
                     [//TextField( controller:studentIDController,decoration: InputDecoration(labelText:"id: ${studentIDController }" ) ,),
               TextField( controller:FirstNameController,decoration: InputDecoration(labelText:"first name" ),),
                     TextField( controller:LastNameController,decoration: InputDecoration(labelText:"last name" ),),
-             TextField( controller:emailController,decoration: InputDecoration(labelText:"email" ),),
+            TextField( controller:emailController, decoration: InputDecoration(labelText:"email" ),),
                     //pick image button
             ElevatedButton(onPressed:pickImage , child: Text("Picked Image"),),
             //   _imageFile !=null? Image.file(_imageFile!):const Text("no image selected"),
@@ -156,10 +170,75 @@ onTap: (){studentDatabase.deleteStudent(student);
               print('object');            
                     Navigator.pop(context);
                         print('12');
-              
+
+final SupabaseClient _supabase =Supabase.instance.client;
+
+
+
+Future<void> createUserAsAdmin({
+  required String email,
+  required String password,
+}) async {
+  final url = Uri.parse('https://<ilwxmfwgmbxmzcjczxka>.supabase.co/auth/v1/admin/users');
+
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer <eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlsd3htZndnbWJ4bXpjamN6eGthIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTM1OTE0OSwiZXhwIjoyMDU0OTM1MTQ5fQ.vhJ4UHv_s60j4tWqMDQ4DSqLpljJfRwd2Jr2C2WTlqA>',
+      'apikey': '<eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlsd3htZndnbWJ4bXpjamN6eGthIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTM1OTE0OSwiZXhwIjoyMDU0OTM1MTQ5fQ.vhJ4UHv_s60j4tWqMDQ4DSqLpljJfRwd2Jr2C2WTlqA>', // نفس المفتاح
+    },
+    body: jsonEncode({
+      'email': emailController,
+      'password': pass,
+    }),
+  );
+
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    final data = jsonDecode(response.body);
+    final userId = data['UID'];
+    print('User created! User ID: $userId');
+
+    // هون بتضيفه على جدول الطلاب (students) باستخدام supabase client
+    await _supabase.from('student').insert({
+      'user_id': userId,
+      // باقي معلومات الطالب
+    });
+
+  } else {
+    print('Error creating user: ${response.body}');
+  }
+}
+
+/* 
+              final response = await Supabase.instance.client.auth.admin.createUser(
+  AdminUserAttributes(
+    email: 'student@email.com',
+    password: 'secret123', // لازم تعطيه باسورد
+    userMetadata: {
+    //  'role': 'student',
+     // 'name': 'Ahmad',
+    },
+  ),
+);
+
+final userId = response.user?.id;
+
+
+
+await Supabase.instance.client.from('student').insert({
+  'user_id': userId,
+  //'name': 'Ahmad',
+  //'class': '10A',
+  // أي بيانات تانية
+});
+
+
+ */
+
                           await _studentController.createStudent(
                           ModelStudent(/* studentid: studentIDController.text ,*/
-                           firstname: FirstNameController.text, 
+                           firstname: FirstNameController.text,  
                            lastname: LastNameController.text,
                            email: emailController.text,
                            password:pass,// passwordController,
@@ -228,8 +307,9 @@ Future UploadImage() async{
   .from('HaderSystem')
   .upload(path, _imageFile!).then((value)=>ScaffoldMessenger.of(context)/* .showSnackBar(const SnackBar(content:Text("Image upload successful !"))) */);
 
-
+//int a=studentDatabase.storage;
 //get url 
+//int studentid = getStudentIdFromSomewhere();
 final getURL= await Supabase.instance.client.storage
   .from('HaderSystem').getPublicUrl(path);
 
@@ -238,7 +318,7 @@ final getURL= await Supabase.instance.client.storage
         .update({
           'imageURL': getURL, // اسناد الرابط للعمود
         })
-        .eq('studentid',25
+        .eq('studentid',50
       ); // شرط الwhere 
 } 
 

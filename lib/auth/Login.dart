@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/auth/auth_service.dart';
+import 'package:flutter_application_2/views/v_admin.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -47,7 +48,13 @@ await authService.signInWithidPassword(userId, password);
           ),
 
           //button 
-          ElevatedButton(onPressed: login, child: const Text("Login")),
+          ElevatedButton(onPressed: () {
+          //  if(login()==1)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ViewAdmin()),
+                );
+              },/* login */ child: const Text("Login")),
 
           //go to previous page 
           

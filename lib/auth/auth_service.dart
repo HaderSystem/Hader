@@ -19,7 +19,8 @@ Future<AuthResponse> signUpWithidPassword (
   String userId, String password) async {
     return await _supabase.auth.signUp(
       email:"$userId@somedomain.com",
-    password: password);
+    password: password, 
+    data:{'studentid':userId});// ضفتها من تشات لما طلبت اوازن بين جدول الاوث وبين الداتا بيس
   }
 
 //sign out 

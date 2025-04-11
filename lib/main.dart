@@ -11,7 +11,10 @@ void main() async {
  
     url: 'https://ilwxmfwgmbxmzcjczxka.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlsd3htZndnbWJ4bXpjamN6eGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzNTkxNDksImV4cCI6MjA1NDkzNTE0OX0.QdJmkj-6Fz0PK8IhjNmINOOsY32YQmRWklzX345Ccmg',
-  );
+  authOptions: 
+    FlutterAuthClientOptions(
+ autoRefreshToken: true,
+      detectSessionInUri: true,    ));
   runApp(const MyApp());
 }
 
