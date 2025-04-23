@@ -1,8 +1,9 @@
-
+/* 
  import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 //import 'package:flutter_application_2/controllers/biometricVerification/c_uploadImage.dart';
 import 'package:flutter_application_2/controllers/c_students.dart';
@@ -50,6 +51,7 @@ final response =await Supabase.instance.client.from('student').insert({
 "email":emailController,
 "password" : pass,
 "imageURL" : UploadImage(),
+//"user_id" :,
 });
 if(response.error !=null){
   print("Task added successfully");
@@ -170,11 +172,13 @@ onTap: (){studentDatabase.deleteStudent(student);
               print('object');            
                     Navigator.pop(context);
                         print('12');
-
+                       // print(studentIDController.text);
+                       
 final SupabaseClient _supabase =Supabase.instance.client;
 
+createStudent(emailController.text ,pass);
 
-
+/* 
 Future<void> createUserAsAdmin({
   required String email,
   required String password,
@@ -208,43 +212,47 @@ Future<void> createUserAsAdmin({
   } else {
     print('Error creating user: ${response.body}');
   }
-}
+} */
 
-/* 
+
               final response = await Supabase.instance.client.auth.admin.createUser(
   AdminUserAttributes(
-    email: 'student@email.com',
-    password: 'secret123', // لازم تعطيه باسورد
-    userMetadata: {
-    //  'role': 'student',
-     // 'name': 'Ahmad',
-    },
+    email: emailController.text,//'student@email.com',
+    password: pass, // لازم تعطيه باسورد
+    /* userMetadata: {
+      'role': 'admin',
+      'name': 'aisha',
+    }, */
   ),
 );
+ 
+/* const { data: userData, error } = await supabase.auth.admin.createUser({
+  email,
+  password,
+}); */
+
 
 final userId = response.user?.id;
 
 
-
+if (userId != null) {
 await Supabase.instance.client.from('student').insert({
+  
   'user_id': userId,
   //'name': 'Ahmad',
   //'class': '10A',
   // أي بيانات تانية
 });
+}
+else {print("error in catching user id");}
 
 
- */
+ 
 
-                          await _studentController.createStudent(
-                          ModelStudent(/* studentid: studentIDController.text ,*/
-                           firstname: FirstNameController.text,  
-                           lastname: LastNameController.text,
-                           email: emailController.text,
-                           password:pass,// passwordController,
-                          /*   imageURL:  */   ),
-                        );
 
+
+
+ 
                         } catch(e){print('an error $e');}
                       }
                   //  }
@@ -380,6 +388,34 @@ studentDatabase.updateStudent(ModelStudent(studentid:student.studentid ,firstnam
         
 
 }
+
+Future<void> createStudent(String email, String password) async {
+  const url = 'https://ilwxmfwgmbxmzcjczxka.supabase.co/functions/v1/my-function';
+  const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlsd3htZndnbWJ4bXpjamN6eGthIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTM1OTE0OSwiZXhwIjoyMDU0OTM1MTQ5fQ.vhJ4UHv_s60j4tWqMDQ4DSqLpljJfRwd2Jr2C2WTlqA'; // حط المفتاح السري هون
+
+
+print("access to create student function");
+  final response = await http.post(
+    Uri.parse(url),
+    headers: {
+      'Authorization': 'Bearer $serviceRoleKey',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({
+      'email': email,
+      'password': password,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    print('User created: ${data['user']}');
+    
+  } else {
+    print('Failed to create user: ${response.body}');
+  }
+}
+
   
 }
   
@@ -755,3 +791,4 @@ class _userController {
 }
 
 */
+ */

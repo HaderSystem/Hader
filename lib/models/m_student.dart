@@ -1,4 +1,4 @@
-class ModelStudent {
+/* class ModelStudent {
  int? studentid;
 final String firstname;
 final String lastname;
@@ -39,4 +39,4 @@ factory ModelStudent.fromMap(Map<String,dynamic> map){
       //'imageURL':imageURL,
     };
   }
-}
+} */

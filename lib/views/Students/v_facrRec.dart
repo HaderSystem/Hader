@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/* import 'package:flutter/material.dart';
 import 'package:flutter_application_2/auth/Login.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -25,9 +25,9 @@ class _ViewFaceRecState extends State<ViewFaceRec> {
 final session =snapshot.hasData? snapshot.data!.session :null ;
 
 if(session != null ) {
-   print('object');
+   print('there is  session for face rec');
 }
-else {return LoginPage();}
+else { print("there is no session for face rec");}
 
 
 
@@ -58,4 +58,4 @@ else {return LoginPage();}
 
     
   }
-}
+} */

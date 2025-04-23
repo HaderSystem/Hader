@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+/* /* import 'package:flutter/material.dart';
+import 'package:flutter_application_2/auth/Login.dart';
 import 'package:flutter_application_2/views/Students/add.dart';
 import 'package:flutter_application_2/views/Students/v_facrRec.dart';
 import 'package:flutter_application_2/views/v_admin.dart';
@@ -36,7 +37,9 @@ class HomeView extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>AddStud()), //ViewStudentLogin()),
+                  MaterialPageRoute(builder: (context) =>LoginPage()
+                  //AddStud()
+                  ), //ViewStudentLogin()),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -119,4 +122,4 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 }
- */
+ */ */ */

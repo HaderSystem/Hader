@@ -7,8 +7,9 @@ plugins {
 }
 apply plugin: 'com.google.gms.google-services'
 
+
 android {
-    namespace = "com.example.flutter_application_2"
+    namespace "com.example.flutter_application_2"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
