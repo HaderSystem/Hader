@@ -9,96 +9,181 @@ class AssignStudentsView extends StatefulWidget {
 }
 
 class _AssignStudentsViewState extends State<AssignStudentsView> {
-  List<dynamic> _students = [];
   List<dynamic> _courses = [];
+  List<dynamic> _teachers = [];
+  List<dynamic> _students = [];
 
-  String? _selectedStudentId;
   String? _selectedCourseId;
+  String? _selectedTeacherId;
+  List<String> _selectedStudentIds = [];
+
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadInitialData();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadInitialData() async {
     final users = await SupabaseService.admin.auth.admin.listUsers();
-final students = users.where((u) => u.email?.contains('student') ?? false).toList();
+    final teachers = users.where((u) => u.userMetadata?['role'] == 'teacher').toList();
     final courses = await SupabaseService.client.from('courses').select();
 
     setState(() {
-      _students = students;
+      _teachers = teachers;
       _courses = courses;
     });
   }
 
-  Future<void> _assignStudent() async {
-    if (_selectedStudentId == null || _selectedCourseId == null) return;
+  Future<void> _loadAvailableStudents(String courseId) async {
+    // 1. الطلاب المخصصين مسبقًا لهاد الكورس
+    final assigned = await SupabaseService.client
+        .from('student_courses')
+        .select('student_id')
+        .eq('course_id', courseId);
 
-    await SupabaseService.client.from('student_courses').insert({
-      'student_id': _selectedStudentId,
-      'course_id': _selectedCourseId,
-    });
+    final assignedIds = assigned.map<String>((row) => row['student_id'] as String).toList();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Student assigned successfully")),
-    );
+    // 2. كل الطلاب
+    final users = await SupabaseService.admin.auth.admin.listUsers();
+    final allStudents = users.where((u) => u.userMetadata?['role'] == 'student').toList();
+
+    // 3. فلترة الطلاب غير المعينين
+    final available = allStudents.where((u) => !assignedIds.contains(u.id)).toList();
 
     setState(() {
-      _selectedStudentId = null;
-      _selectedCourseId = null;
+      _students = available;
+      _selectedStudentIds.clear();
     });
+  }
+
+  Future<void> _assignStudentsAndTeacher() async {
+    if (_selectedCourseId == null || _selectedTeacherId == null || _selectedStudentIds.isEmpty) return;
+
+    setState(() => _loading = true);
+
+    try {
+      // تحديث المعلم
+      await SupabaseService.client
+          .from('courses')
+          .update({'teacher_id': _selectedTeacherId})
+          .eq('id', _selectedCourseId);
+
+      // ربط كل طالب بالكورس
+      for (final studentId in _selectedStudentIds) {
+        await SupabaseService.client.from('student_courses').insert({
+          'student_id': studentId,
+          'course_id': _selectedCourseId,
+        });
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Assignment completed successfully")),
+      );
+
+      setState(() {
+        _selectedCourseId = null;
+        _selectedTeacherId = null;
+        _students = [];
+        _selectedStudentIds = [];
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+
+    setState(() => _loading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Assign Students to Courses")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-         DropdownButtonFormField<String>(
-  value: _selectedStudentId,
-  items: _students.map<DropdownMenuItem<String>>((s) {
-    return DropdownMenuItem<String>(
-      value: s.id,
-      child: Text(s.email ?? ''),
-    );
-  }).toList(),
+      appBar: AppBar(title: const Text("Assign Students & Teacher")),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // اختيار الكورس
+                    DropdownButtonFormField<String>(
+                      value: _selectedCourseId,
+                      decoration: const InputDecoration(labelText: 'Select Course'),
+                      items: _courses.map<DropdownMenuItem<String>>((c) {
+                        return DropdownMenuItem<String>(
+                          value: c['id'],
+                          child: Text(c['name']),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        setState(() => _selectedCourseId = val);
+                        if (val != null) _loadAvailableStudents(val);
+                      },
+                    ),
+                    const SizedBox(height: 16),
 
-              hint: const Text("Select Student"),
-              onChanged: (value) {
-                setState(() {
-                  _selectedStudentId = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-  value: _selectedCourseId,
-  items: _courses.map<DropdownMenuItem<String>>((c) {
-    return DropdownMenuItem<String>(
-      value: c['id'],
-      child: Text(c['name']),
-    );
-  }).toList(),
+                    // اختيار المعلم
+                    DropdownButtonFormField<String>(
+                      value: _selectedTeacherId,
+                      decoration: const InputDecoration(labelText: 'Select Teacher'),
+                      items: _teachers.map<DropdownMenuItem<String>>((t) {
+                        final fullName = t.userMetadata?['full_name'] ??
+                            t.userMetadata?['name'] ??
+                            t.email ??
+                            'No Name';
+                        return DropdownMenuItem<String>(
+                          value: t.id,
+                          child: Text(fullName),
+                        );
+                      }).toList(),
+                      onChanged: (val) => setState(() => _selectedTeacherId = val),
+                    ),
+                    const SizedBox(height: 16),
 
-              hint: const Text("Select Course"),
-              onChanged: (value) {
-                setState(() {
-                  _selectedCourseId = value;
-                });
-              },
+                    // اختيار الطلاب
+                    const Text('Select Students:'),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _students.map((student) {
+                        final id = student.id;
+                        final selected = _selectedStudentIds.contains(id);
+                        final universityId = student.userMetadata?['university_id'] ??
+                            student.userMetadata?['student_id'] ??
+                            student.email ??
+                            'No ID';
+
+                        return FilterChip(
+                          label: Text(universityId),
+                          selected: selected,
+                          onSelected: (bool value) {
+                            setState(() {
+                              if (value) {
+                                _selectedStudentIds.add(id);
+                              } else {
+                                _selectedStudentIds.remove(id);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+
+                    const SizedBox(height: 24),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: _assignStudentsAndTeacher,
+                        child: const Text("Assign"),
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _assignStudent,
-              child: const Text("Assign"),
-            )
-          ],
-        ),
-      ),
     );
   }
 }

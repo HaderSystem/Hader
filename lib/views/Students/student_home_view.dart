@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_2/views/Students/choose_verification_method_view.dart';
 import 'package:flutter_application_2/views/Students/student_course_stats_view.dart';
-import 'package:flutter_application_2/views/Students/face_verification_view.dart';
 import 'package:flutter_application_2/views/Students/student_attendance_history_view.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -36,23 +36,23 @@ class _StudentHomeViewState extends State<StudentHomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("my courses"),
+        title: const Text("My Courses"),
         actions: [
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
-              final userId =
-                  Supabase.instance.client.auth.currentUser!.id;
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                      builder: (_) => const StudentAttendanceHistoryView(),
+                  builder: (_) => const StudentAttendanceHistoryView(),
                 ),
               );
             },
-          )
+          ),
         ],
       ),
       body: _courses.isEmpty
@@ -65,9 +65,6 @@ class _StudentHomeViewState extends State<StudentHomeView> {
                   title: Text(course['name']),
                   subtitle: const Text("عرض إحصائيات + تسجيل حضور"),
                   onTap: () {
-                    final userId =
-                        Supabase.instance.client.auth.currentUser!.id;
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -76,22 +73,23 @@ class _StudentHomeViewState extends State<StudentHomeView> {
                       ),
                     );
                   },
-                  onLongPress: () {
-                    final userId =
-                        Supabase.instance.client.auth.currentUser!.id;
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            FaceVerificationView(userId: userId),
-                      ),
-                    );
-                  },
-                  trailing: const Icon(Icons.camera_alt),
                 );
               },
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (userId != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ChooseVerificationMethodView(userId: userId),
+              ),
+            );
+          }
+        },
+        tooltip: 'Scan QR Code',
+        child: const Icon(Icons.qr_code_scanner),
+      ),
     );
   }
 }
