@@ -51,7 +51,36 @@
   "new_student_info": "New student information:",
   "student_id": "Student ID",
   
-  "fill_required_fields": "Please fill all fields and select a face image"
+  "fill_required_fields": "Please fill all fields and select a face image",
+"wrong_email_or_password": "Incorrect email or password. Please try again.",
+"something_went_wrong": "Something went wrong. Please try later.",
+"wrong_email_or_password_attempt": "Incorrect credentials. You have {0} attempts left.",
+"account_locked": "Too many failed attempts. Please try again after {0} minutes.",
+"profile_name": "Name",
+"profile_id": "University ID",
+"profile_email": "Email",
+  "teacher_name": "Teacher Name",
+  "generated_password": "Generated Password",
+  "employee_id": "Employee ID",
+  "enter_all_fields": "Please enter all fields",
+  "teacher_created": "Teacher account created successfully",
+  "teacher_created_successfully": "Account created, here are the details:",
+  "operation_failed": "Operation failed",
+ 
+  "change_password": "Change Password",
+  "dark_mode": "Dark Mode",
+  "settings": "Settings",
+  "logout": "Logout",
+  "password_current": "Current Password",
+  "password_new": "New Password",
+  "password_confirm": "Confirm New Password",
+  "invalid_password": "Password must be at least 6 characters",
+  "password_mismatch": "Passwords do not match",
+  "password_updated": "Password changed successfully",
+  "error_occurred": "An error occurred",
+  "loading": "Loading...",
+  "english": "English",
+  "arabic": "العربية"
 
 
 }

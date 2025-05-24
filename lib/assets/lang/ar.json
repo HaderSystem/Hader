@@ -51,9 +51,40 @@
   "new_student_info": "بيانات الطالب الجديد:",
   "student_id": "الرقم الجامعي",
   
-  "fill_required_fields": "يرجى ملء جميع الحقول واختيار صورة الوجه"
+  "fill_required_fields": "يرجى ملء جميع الحقول واختيار صورة الوجه",
 
+"wrong_email_or_password": "البريد الإلكتروني أو كلمة المرور غير صحيحة. حاول مرة أخرى.",
+"something_went_wrong": "حدث خطأ ما. حاول لاحقاً.",
 
+"wrong_email_or_password_attempt": "بيانات الدخول غير صحيحة. تبقى لديك {0} محاولات.",
+"account_locked": "تم قفل الحساب مؤقتاً. حاول مجددًا بعد {0} دقيقة.",
+"profile_name": "الاسم",
+"profile_id": "الرقم الجامعي",
+"profile_email": "البريد الإلكتروني",
 
+  "teacher_name": "اسم المعلم",
+  "generated_password": "كلمة المرور العشوائية",
+  "employee_id": "الرقم الوظيفي",
+  "enter_all_fields": "الرجاء إدخال جميع الحقول",
+  "teacher_created": "تم إنشاء المعلم بنجاح",
+  "teacher_created_successfully": "تم إنشاء الحساب، إليك التفاصيل:",
+  "operation_failed": "فشل في العملية",
+   
+ 
+  "change_password": "تغيير كلمة المرور",
+  "dark_mode": "الوضع الليلي",
+  "settings": "الإعدادات",
+  "logout": "تسجيل الخروج",
+  "password_current": "كلمة المرور الحالية",
+  "password_new": "كلمة المرور الجديدة",
+  "password_confirm": "تأكيد كلمة المرور",
+ 
+  "invalid_password": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+  "password_mismatch": "كلمة المرور الجديدة غير متطابقة",
+  "password_updated": "تم تغيير كلمة المرور بنجاح",
+  "error_occurred": "حدث خطأ",
+  "loading": "جاري التحميل...",
+  "english": "English",
+  "arabic": "العربية"
  
 }

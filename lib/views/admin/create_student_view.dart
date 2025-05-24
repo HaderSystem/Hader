@@ -45,9 +45,10 @@ class _CreateStudentViewState extends State<CreateStudentView> {
     }
 
     setState(() => _loading = true);
-
+//172.20.10.6 aisha's iphone
+//192.168.8.165 aisha's home network
     try {
-      final uri = Uri.parse('http://172.20.10.6:3000/create-student');
+      final uri = Uri.parse('http://172.20.10.6:3000/create_student_server');
       final request = http.MultipartRequest('POST', uri);
 
       request.fields['email'] = email;
