@@ -20,8 +20,7 @@ class _QRScannerViewState extends State<QRScannerView> {
   void initState() {
     super.initState();
 
-    // ⏲️ مؤقت إغلاق تلقائي بعد 20 ثانية
-    _scannerTimeoutTimer = Timer(Duration(seconds: 20), () {
+    _scannerTimeoutTimer = Timer(const Duration(seconds: 20), () {
       if (!_scanned) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('⏱️ انتهى الوقت المسموح للمسح')),
@@ -40,15 +39,13 @@ class _QRScannerViewState extends State<QRScannerView> {
   void _handleScan(String code) async {
     if (_scanned) return;
     _scanned = true;
-    _scannerTimeoutTimer?.cancel(); // أوقف المؤقت لو تم المسح
+    _scannerTimeoutTimer?.cancel();
 
     final lectureId = code.trim();
     final studentId = _supabase.auth.currentUser?.id;
 
     if (lectureId.isNotEmpty && studentId != null) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
       try {
         final existing = await _supabase
@@ -58,9 +55,8 @@ class _QRScannerViewState extends State<QRScannerView> {
             .eq('student_id', studentId);
 
         if (existing.isNotEmpty) {
-          setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("تم تسجيل حضورك مسبقًا")),
+            const SnackBar(content: Text("📌 تم تسجيل حضورك مسبقًا")),
           );
           Navigator.pop(context);
           return;
@@ -72,19 +68,18 @@ class _QRScannerViewState extends State<QRScannerView> {
           'status': 'present',
         });
 
-        setState(() => _isLoading = false);
-
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("تم تسجيل الحضور بنجاح ✅")),
+          const SnackBar(content: Text("✅ تم تسجيل الحضور بنجاح")),
         );
         Navigator.pop(context);
       } catch (e) {
-        setState(() => _isLoading = false);
-        print('خطأ أثناء التسجيل: $e');
+        print('❌ خطأ أثناء التسجيل: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("حدث خطأ أثناء تسجيل الحضور ❌")),
         );
         Navigator.pop(context);
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
@@ -92,7 +87,10 @@ class _QRScannerViewState extends State<QRScannerView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Scan QR Code")),
+      appBar: AppBar(
+        title: const Text("مسح رمز الحضور"),
+        centerTitle: true,
+      ),
       body: Stack(
         children: [
           MobileScanner(
@@ -107,7 +105,7 @@ class _QRScannerViewState extends State<QRScannerView> {
           ),
           if (_isLoading)
             Container(
-              color: Colors.black54,
+              color: Colors.black.withOpacity(0.5),
               child: const Center(
                 child: CircularProgressIndicator(),
               ),

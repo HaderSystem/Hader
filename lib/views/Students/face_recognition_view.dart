@@ -21,6 +21,7 @@ class _FaceRecognitionViewState extends State<FaceRecognitionView> {
   final supabase = Supabase.instance.client;
   File? _storedFace;
   bool _loading = false;
+  String? _statusMessage;
 
   @override
   void initState() {
@@ -39,13 +40,22 @@ class _FaceRecognitionViewState extends State<FaceRecognitionView> {
   }
 
   Future<void> _startFullFaceFlow() async {
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _statusMessage = '📥 جاري تحميل صورة الطالب من الخادم...';
+    });
+
     try {
       await _downloadStoredFace();
-      final captured = await _autoCaptureFace();
 
+if (mounted) {
+  setState(() => _statusMessage = '📸 التقط صورة لوجهك للتحقق');
+}
+
+      final captured = await _autoCaptureFace();
       if (captured == null) return;
 
+      setState(() => _statusMessage = '🧠 يتم الآن مقارنة الوجوه...');
       await _compareFaces(captured);
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -53,6 +63,9 @@ class _FaceRecognitionViewState extends State<FaceRecognitionView> {
   }
 
   Future<void> _downloadStoredFace() async {
+      final userId = widget.userId.trim();
+    print("📌 widget.userId: '${widget.userId}'");
+
     final result = await supabase
         .from('students')
         .select('faces')
@@ -88,7 +101,6 @@ class _FaceRecognitionViewState extends State<FaceRecognitionView> {
     if (_storedFace == null) return;
 
     final compressedStored = await _compressFile(_storedFace!);
-
     final uri = Uri.parse('https://api-us.faceplusplus.com/facepp/v3/compare');
 
     final request = http.MultipartRequest('POST', uri)
@@ -98,11 +110,10 @@ class _FaceRecognitionViewState extends State<FaceRecognitionView> {
       ..files.add(await http.MultipartFile.fromPath('image_file2', capturedFace.path, contentType: MediaType('image', 'jpeg')));
 
     try {
-      // ⏲️ تحديد المهلة القصوى للمقارنة = 2 ثواني فقط
       final streamedResponse = await request.send();
-final response = await http.Response.fromStream(streamedResponse).timeout(const Duration(seconds: 2));
+      final response = await http.Response.fromStream(streamedResponse).timeout(const Duration(seconds: 2));
 
- final data = json.decode(response.body);
+      final data = json.decode(response.body);
       debugPrint('📦 استجابة Face++: $data');
 
       if (response.statusCode == 200 && data.containsKey('confidence')) {
@@ -115,19 +126,13 @@ final response = await http.Response.fromStream(streamedResponse).timeout(const 
           _showFaceMismatchDialog(confidence);
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('فشل التحقق من الوجه')),
-        );
+        _showMessage('فشل التحقق من الوجه');
       }
     } on TimeoutException {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('⏱️ انتهت مهلة التحقق، حاول مرة أخرى')),
-      );
+      _showMessage('⏱️ انتهت مهلة التحقق، حاول مرة أخرى');
     } catch (e) {
       debugPrint('❌ خطأ أثناء التحقق: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('حدث خطأ أثناء التحقق')),
-      );
+      _showMessage('حدث خطأ أثناء التحقق');
     }
   }
 
@@ -147,13 +152,37 @@ final response = await http.Response.fromStream(streamedResponse).timeout(const 
     );
   }
 
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('التحقق من الوجه')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : const Center(child: Text('✅ تم التحقق أو ظهرت النتيجة')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: _loading
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 24),
+                    if (_statusMessage != null)
+                      Text(
+                        _statusMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                  ],
+                )
+              : const Text(
+                  '✅ تم التحقق أو انتهت العملية',
+                  style: TextStyle(fontSize: 18),
+                ),
+        ),
+      ),
     );
   }
 }

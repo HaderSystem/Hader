@@ -43,11 +43,7 @@ class _AttendanceReportViewState extends State<AttendanceReportView> {
         .select('student_id')
         .eq('course_id', courseId);
 
-    final List<Map<String, dynamic>> report
-    
-    
-    
-     = [];
+    final List<Map<String, dynamic>> report = [];
 
     for (final link in studentLinks) {
       final studentId = link['student_id'];
@@ -107,47 +103,88 @@ class _AttendanceReportViewState extends State<AttendanceReportView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Attendance Report")),
+      appBar: AppBar(
+        title: const Text("Attendance Report"),
+        centerTitle: true,
+        elevation: 2,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            DropdownButtonFormField<String>(
-              value: _selectedCourseId,
-              items: _courses.map<DropdownMenuItem<String>>((c) {
-                return DropdownMenuItem<String>(
-                  value: c['id'],
-                  child: Text(c['name']),
-                );
-              }).toList(),
-              hint: const Text("Select Course"),
-              onChanged: (val) {
-                setState(() {
-                  _selectedCourseId = val;
-                  _report.clear();
-                });
-                if (val != null) _generateReport(val);
-              },
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Select Course',
+                ),
+                value: _selectedCourseId,
+                items: _courses.map<DropdownMenuItem<String>>((c) {
+                  return DropdownMenuItem<String>(
+                    value: c['id'],
+                    child: Text(c['name']),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  setState(() {
+                    _selectedCourseId = val;
+                    _report.clear();
+                  });
+                  if (val != null) _generateReport(val);
+                },
+              ),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _report.isEmpty ? null : _exportCSV,
               child: const Text("Export as CSV"),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
-                itemCount: _report.length,
-                itemBuilder: (_, index) {
-                  final entry = _report[index];
-                  return ListTile(
-                    title: Text("Student: ${entry['student_id']}"),
-                    subtitle: Text(
-                      "Present: ${entry['present']} | Absent: ${entry['absent']} / ${entry['total']}",
+              child: _report.isEmpty
+                  ? const Center(
+                      child: Text(
+                        "No data available. Please select a course.",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _report.length,
+                      itemBuilder: (_, index) {
+                        final entry = _report[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 3,
+                          child: ListTile(
+                            title: Text("Student: ${entry['student_id']}"),
+                            subtitle: Text(
+                              "Present: ${entry['present']} | Absent: ${entry['absent']} / ${entry['total']}",
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),

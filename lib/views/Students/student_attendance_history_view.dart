@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/intl.dart';
 
 class StudentAttendanceHistoryView extends StatefulWidget {
   const StudentAttendanceHistoryView({super.key});
@@ -36,6 +37,8 @@ class _StudentAttendanceHistoryViewState extends State<StudentAttendanceHistoryV
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text("سجل الحضور")),
       body: _loading
@@ -43,18 +46,40 @@ class _StudentAttendanceHistoryViewState extends State<StudentAttendanceHistoryV
           : _records.isEmpty
               ? const Center(child: Text("لا يوجد حضور مسجل"))
               : ListView.builder(
+                  padding: const EdgeInsets.all(12),
                   itemCount: _records.length,
                   itemBuilder: (context, index) {
                     final record = _records[index];
                     final lecture = record['lectures'];
                     final course = lecture['courses'];
-                    final date = lecture['date'];
+                    final rawDate = lecture['date'];
                     final status = record['status'];
 
-                    return ListTile(
-                      title: Text(course['name'] ?? 'كورس غير معروف'),
-                      subtitle: Text("التاريخ: $date"),
-                      trailing: Text(status == 'present' ? "✔ حاضر" : "✖ غائب"),
+                    final formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.parse(rawDate));
+                    final isPresent = status == 'present';
+
+                    return Card(
+                      elevation: 3,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        title: Text(
+                          course['name'] ?? 'كورس غير معروف',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text("📅 التاريخ: $formattedDate"),
+                        trailing: Text(
+                          isPresent ? "✔ حاضر" : "✖ غائب",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isPresent ? Colors.green : Colors.red,
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),

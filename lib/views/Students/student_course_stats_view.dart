@@ -51,35 +51,90 @@ class _StudentCourseStatsViewState extends State<StudentCourseStatsView> {
     final showWarning = absentCount >= 3;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Attendance Stats")),
+      appBar: AppBar(
+        title: const Text("إحصائيات الحضور"),
+        centerTitle: true,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Total Lectures: $totalLectures",
-                style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 8),
-            Text("Present: $presentCount",
-                style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 8),
-            Text("Absent: $absentCount",
-                style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 16),
+            StatCard(
+              label: "📚 عدد المحاضرات",
+              value: totalLectures.toString(),
+              color: Colors.blue,
+            ),
+            const SizedBox(height: 12),
+            StatCard(
+              label: "✅ الحضور",
+              value: presentCount.toString(),
+              color: Colors.green,
+            ),
+            const SizedBox(height: 12),
+            StatCard(
+              label: "❌ الغياب",
+              value: absentCount.toString(),
+              color: Colors.red,
+            ),
+            const SizedBox(height: 20),
             if (showWarning)
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(8),
+              Card(
+                color: Colors.red.shade100,
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  "تنبيه: تجاوزت الحد المسموح من الغيابات!",
-                  style: TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.bold),
+                child: const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    "⚠️ تنبيه: تجاوزت الحد المسموح من الغيابات!",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class StatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const StatCard({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: color.withOpacity(0.1),
+          child: Icon(Icons.bar_chart, color: color),
+        ),
+        title: Text(label, style: theme.textTheme.bodyLarge),
+        trailing: Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
         ),
       ),
     );

@@ -45,9 +45,9 @@
   "student_email": "Student Email",
   "capture_face_image": "Capture Face Image",
   "create_account": "Create Account",
-  "student_created_success": "✅ Student created successfully",
-  "student_creation_failed": "❌ Failed to create student",
-  "server_error": "⚠️ An error occurred while connecting to the server",
+  "student_created_success": " Student created successfully",
+  "student_creation_failed": " Failed to create student",
+  "server_error": "An error occurred while connecting to the server",
   "new_student_info": "New student information:",
   "student_id": "Student ID",
   
@@ -80,7 +80,50 @@
   "error_occurred": "An error occurred",
   "loading": "Loading...",
   "english": "English",
-  "arabic": "العربية"
+  "arabic": "العربية",
+
+  "course_description": "Course Description",
+  
+  
+
+  "start_date": "Start Date",
+  "end_date": "End Date",
+  "start_time": "Start Time",
+  "end_time": "End Time",
+  "lecture_days": "Lecture Days",
+  "edit_course": "Edit Course",
+  "add": "Add",
+  
+  "Sun": "Sunday",
+  "Mon": "Monday",
+  "Tue": "Tuesday",
+  "Wed": "Wednesday",
+  "Thu": "Thursday",
+  "Fri": "Friday",
+  "Sat": "Saturday",
+  "my_courses": "My Courses",
+
+"no_courses_found": "No courses found",
+"scan_qr": "Scan QR",
+"course_options": "Tap to view details",
+
+"no_lecture_now": "You don't have a lecture now",
 
 
+"forget_password": "Forget your password? click here",
+
+  "forgot_password": "Forgot your password?",
+  "send_reset_link": "Send reset link",
+  "reset_password_title": "Reset Password",
+  "new_password": "New Password",
+  "update_password": "Update Password",
+  "sending": "Sending...",
+  "updating": "Updating...",
+  "reset_email_sent": "📩 Reset link sent to your email",
+  "reset_success": "✅ Password changed successfully",
+  "reset_failed": "❌ Failed to change password",
+  "invalid_email": "Please enter a valid email"
 }
+
+
+

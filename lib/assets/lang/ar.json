@@ -85,6 +85,44 @@
   "error_occurred": "حدث خطأ",
   "loading": "جاري التحميل...",
   "english": "English",
-  "arabic": "العربية"
- 
+  "arabic": "العربية",
+  "course_description": "وصف الكورس",
+  
+  
+  "start_date": "تاريخ البداية",
+  "end_date": "تاريخ النهاية",
+  "start_time": "وقت البدء",
+  "end_time": "وقت الانتهاء",
+  "lecture_days": "أيام المحاضرات",
+  "edit_course": "تعديل كورس",
+  "add": "إضافة",
+   "Sun": "الأحد",
+  "Mon": "الإثنين",
+  "Tue": "الثلاثاء",
+  "Wed": "الأربعاء",
+  "Thu": "الخميس",
+  "Fri": "الجمعة",
+  "Sat": "السبت",
+  
+  "my_courses": "كورساتي",
+  "no_courses_found": "لا يوجد كورسات مسجلة",
+  "scan_qr": "مسح رمز الاستجابة",
+  "course_options": "اضغط لعرض تفاصيل الكورس",
+  
+  "no_user_found": "لم يتم العثور على المستخدم",
+  "forget_password":"نسيت كلمة السر؟ اضغط هنا",
+   "forgot_password": "نسيت كلمة المرور؟",
+  "send_reset_link": "إرسال الرابط",
+  "reset_password_title": "تغيير كلمة المرور",
+  "new_password": "كلمة مرور جديدة",
+  "update_password": "تحديث",
+  "sending": "جارٍ الإرسال...",
+  "updating": "جارٍ التحديث...",
+  "reset_email_sent": " تم إرسال رابط إعادة التعيين إلى بريدك",
+  "reset_success": " تم تغيير كلمة المرور",
+  "reset_failed": " فشل تغيير كلمة المرور",
+  "invalid_email": "يرجى إدخال بريد إلكتروني صحيح"
 }
+
+
+
