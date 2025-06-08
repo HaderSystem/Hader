@@ -14,6 +14,7 @@ class TeacherDashboardView extends StatefulWidget {
 }
 
 class _TeacherDashboardViewState extends State<TeacherDashboardView> {
+  
   final _supabase = Supabase.instance.client;
   List<dynamic> courses = [];
 
@@ -68,7 +69,11 @@ class _TeacherDashboardViewState extends State<TeacherDashboardView> {
         .eq('id', courseId)
         .single();
 
-    final days = course['lecture_days'].toString().split(',');
+final days = course['lecture_days']
+    .toString()
+    .split(',')
+    .map((e) => e.trim())
+    .toList();
 
     final startParts = course['start_time'].toString().split(":");
     final endParts = course['end_time'].toString().split(":");
@@ -106,6 +111,7 @@ class _TeacherDashboardViewState extends State<TeacherDashboardView> {
 
   @override
   Widget build(BuildContext context) {
+    
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
     final email = user?.email ?? 'unknown@example.com';
@@ -204,6 +210,17 @@ class _TeacherDashboardViewState extends State<TeacherDashboardView> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                      Text(
+  "🕒 ${course['lecture_days']} — ${course['start_time'].toString().substring(0, 5)} - ${course['end_time'].toString().substring(0, 5)}",
+  style: TextStyle(
+    fontSize: 14,
+    color: Colors.grey[700],
+  ),
+),
+const SizedBox(height: 8),
+
+const SizedBox(height: 8),
+ 
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -252,7 +269,6 @@ class _TeacherDashboardViewState extends State<TeacherDashboardView> {
                                   ),
                                 );
                               },
-                              child: const Icon(Icons.add),
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 20, vertical: 12),
@@ -260,6 +276,7 @@ class _TeacherDashboardViewState extends State<TeacherDashboardView> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
+                              child: const Icon(Icons.add),
                             ),
                           ],
                         )

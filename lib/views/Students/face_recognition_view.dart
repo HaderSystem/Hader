@@ -1,3 +1,4 @@
+//this page for face recognition for students to ensure that they are themselves
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
@@ -8,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class FaceRecognitionView extends StatefulWidget {
   final String userId;
@@ -30,7 +32,8 @@ class _FaceRecognitionViewState extends State<FaceRecognitionView> {
   }
 
   Future<File> _compressFile(File file) async {
-    final targetPath = '${(await getTemporaryDirectory()).path}/${DateTime.now().millisecondsSinceEpoch}_compressed.jpg';
+    final targetPath =
+        '${(await getTemporaryDirectory()).path}/${DateTime.now().millisecondsSinceEpoch}_compressed.jpg';
     final XFile? result = await FlutterImageCompress.compressAndGetFile(
       file.absolute.path,
       targetPath,
@@ -42,20 +45,20 @@ class _FaceRecognitionViewState extends State<FaceRecognitionView> {
   Future<void> _startFullFaceFlow() async {
     setState(() {
       _loading = true;
-      _statusMessage = '📥 جاري تحميل صورة الطالب من الخادم...';
+      _statusMessage = tr('loading_face');
     });
 
     try {
       await _downloadStoredFace();
 
-if (mounted) {
-  setState(() => _statusMessage = '📸 التقط صورة لوجهك للتحقق');
-}
+      if (mounted) {
+        setState(() => _statusMessage = tr('capture_face'));
+      }
 
       final captured = await _autoCaptureFace();
       if (captured == null) return;
 
-      setState(() => _statusMessage = '🧠 يتم الآن مقارنة الوجوه...');
+      setState(() => _statusMessage = tr('comparing_faces'));
       await _compareFaces(captured);
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -63,18 +66,17 @@ if (mounted) {
   }
 
   Future<void> _downloadStoredFace() async {
-      final userId = widget.userId.trim();
-    print("📌 widget.userId: '${widget.userId}'");
+    final userId = widget.userId.trim();
 
     final result = await supabase
         .from('students')
         .select('faces')
-        .eq('id', widget.userId)
+        .eq('id', userId)
         .maybeSingle();
 
     if (result == null || result['faces'] == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('لا توجد صورة مخزنة لهذا الطالب')),
+        SnackBar(content: Text(tr('no_face_found'))),
       );
       throw Exception("No stored face");
     }
@@ -86,7 +88,7 @@ if (mounted) {
       await file.writeAsBytes(response.bodyBytes);
       _storedFace = file;
     } else {
-      throw Exception("فشل تحميل الصورة");
+      throw Exception("Image download failed");
     }
   }
 
@@ -106,15 +108,17 @@ if (mounted) {
     final request = http.MultipartRequest('POST', uri)
       ..fields['api_key'] = 'FJhvE1OSyc3G6jIKAt7GKEtH0Y5-VVIf'
       ..fields['api_secret'] = 'V9OroBbeLKesOY-DH7q2Eekn1rf6VB8C'
-      ..files.add(await http.MultipartFile.fromPath('image_file1', compressedStored.path, contentType: MediaType('image', 'jpeg')))
-      ..files.add(await http.MultipartFile.fromPath('image_file2', capturedFace.path, contentType: MediaType('image', 'jpeg')));
+      ..files.add(await http.MultipartFile.fromPath('image_file1', compressedStored.path,
+          contentType: MediaType('image', 'jpeg')))
+      ..files.add(await http.MultipartFile.fromPath('image_file2', capturedFace.path,
+          contentType: MediaType('image', 'jpeg')));
 
     try {
       final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse).timeout(const Duration(seconds: 2));
+      final response =
+          await http.Response.fromStream(streamedResponse).timeout(const Duration(seconds: 2));
 
       final data = json.decode(response.body);
-      debugPrint('📦 استجابة Face++: $data');
 
       if (response.statusCode == 200 && data.containsKey('confidence')) {
         final confidence = data['confidence'];
@@ -126,13 +130,13 @@ if (mounted) {
           _showFaceMismatchDialog(confidence);
         }
       } else {
-        _showMessage('فشل التحقق من الوجه');
+        _showMessage(tr('face_verification_failed'));
       }
     } on TimeoutException {
-      _showMessage('⏱️ انتهت مهلة التحقق، حاول مرة أخرى');
+      _showMessage(tr('verification_timeout'));
     } catch (e) {
-      debugPrint('❌ خطأ أثناء التحقق: $e');
-      _showMessage('حدث خطأ أثناء التحقق');
+      debugPrint('❌ Error: $e');
+      _showMessage(tr('error_verifying_face'));
     }
   }
 
@@ -140,12 +144,12 @@ if (mounted) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('وجه غير مطابق'),
-        content: Text('نسبة التطابق: ${confidence.toStringAsFixed(2)}%\nحاول مرة أخرى.'),
+        title: Text(tr('face_not_match')),
+        content: Text('${tr('similarity')}: ${confidence.toStringAsFixed(2)}%\n${tr('try_again')}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('موافق'),
+            child: Text(tr('ok')),
           )
         ],
       ),
@@ -159,30 +163,54 @@ if (mounted) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('التحقق من الوجه')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: _loading
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 24),
-                    if (_statusMessage != null)
-                      Text(
-                        _statusMessage!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                  ],
-                )
-              : const Text(
-                  '✅ تم التحقق أو انتهت العملية',
-                  style: TextStyle(fontSize: 18),
-                ),
-        ),
+      appBar: AppBar(title: Text(tr('face_verification'))),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth > 600;
+
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: _loading
+                  ? isWide
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(width: 24),
+                            if (_statusMessage != null)
+                              Expanded(
+                                child: Text(
+                                  _statusMessage!,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              ),
+                          ],
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 24),
+                            if (_statusMessage != null)
+                              Text(
+                                _statusMessage!,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                          ],
+                        )
+                  : Text(
+                      tr('no_matching'),
+                      style: const TextStyle(fontSize: 18),
+                    ),
+            ),
+          );
+        },
       ),
     );
   }
 }
+
+

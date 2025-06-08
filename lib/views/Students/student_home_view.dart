@@ -1,6 +1,6 @@
+//student home view 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/views/Students/student_course_stats_view.dart';
-import 'package:flutter_application_2/views/Students/student_attendance_history_view.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../providers/theme_provider.dart';
@@ -15,7 +15,7 @@ class StudentHomeView extends StatefulWidget {
 
 class _StudentHomeViewState extends State<StudentHomeView> {
   final _supabase = Supabase.instance.client;
-  List<dynamic> _courses = [];
+  List<Map<String, dynamic>> _courses = [];
   String? _imageUrl;
   bool _loading = true;
 
@@ -36,7 +36,7 @@ class _StudentHomeViewState extends State<StudentHomeView> {
         if (exists) {
           final url = await _supabase.storage
               .from('faces')
-.createSignedUrl('$uid.jpg', 604800); // 7 أيام بالثواني
+              .createSignedUrl('$uid.jpg', 604800);
           setState(() => _imageUrl = url);
         }
       } catch (e) {
@@ -44,42 +44,40 @@ class _StudentHomeViewState extends State<StudentHomeView> {
       }
     }
   }
+
   Future<void> _fetchCourses() async {
-  final userId = _supabase.auth.currentUser?.id;
-  if (userId == null) return;
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return;
 
-  try {
-    final courseLinks = await _supabase
-        .from('student_courses')
-        .select('course_id')
-        .eq('student_id', userId);
+    try {
+      final courseLinks = await _supabase
+          .from('student_courses')
+          .select('course_id')
+          .eq('student_id', userId);
 
-    print('📦 Linked course IDs: $courseLinks');
+      List<Map<String, dynamic>> fetchedCourses = [];
 
-    List<Map<String, dynamic>> fetchedCourses = [];
+      for (var link in courseLinks) {
+        final course = await _supabase
+            .from('courses')
+            .select('id, name, start_time, end_time')
+            .eq('id', link['course_id'])
+            .maybeSingle();
 
-    for (var link in courseLinks) {
-      final course = await _supabase
-          .from('courses')
-          .select('id, name')
-          .eq('id', link['course_id'])
-          .maybeSingle();
-
-      if (course != null) {
-        fetchedCourses.add(course);
+        if (course != null) {
+          fetchedCourses.add(course);
+        }
       }
+
+      setState(() {
+        _courses = fetchedCourses;
+        _loading = false;
+      });
+    } catch (e) {
+      print('❌ ERROR in fetchCourses: $e');
+      setState(() => _loading = false);
     }
-
-    setState(() {
-      _courses = fetchedCourses;
-      _loading = false;
-    });
-  } catch (e) {
-    print('❌ ERROR in fetchCourses: $e');
-    setState(() => _loading = false);
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -96,129 +94,141 @@ class _StudentHomeViewState extends State<StudentHomeView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(tr("my_courses")),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const StudentAttendanceHistoryView(),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       drawer: Align(
-  alignment: Alignment.centerLeft,
-  child: ConstrainedBox(
-    constraints: BoxConstraints(
-      maxWidth: 340, 
-   // maxHeight: 2000
-    ),
-    child: Drawer(
-        child: SafeArea(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-             UserAccountsDrawerHeader(
-  decoration: BoxDecoration(color: colorScheme.primary),
-  currentAccountPicture: CircleAvatar(
-    backgroundImage: _imageUrl != null ? NetworkImage(_imageUrl!) : null,
-    backgroundColor: Colors.white24,
-    child: _imageUrl == null
-        ? const Icon(Icons.person, size: 40, color: Colors.white)
-        : null,
-  ),
-  accountName: Text(
-    name.toString().toUpperCase(),
-    style: const TextStyle(fontWeight: FontWeight.bold),
-  ),
-  accountEmail: Text('$universityId | $email'),
-),
-   ExpansionTile(
-                leading: const Icon(Icons.settings),
-                title: Text(tr("settings")),
+        alignment: Alignment.centerLeft,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 340,
+          ),
+          child: Drawer(
+            child: SafeArea(
+              child: ListView(
+                padding: EdgeInsets.zero,
                 children: [
-                  ListTile(
-                    leading: const Icon(Icons.language),
-                    title: Text(
-                      context.locale.languageCode == 'ar'
-                          ? tr("english")
-                          : tr("arabic"),
+                  UserAccountsDrawerHeader(
+                    decoration: BoxDecoration(color: colorScheme.primary),
+                    currentAccountPicture: CircleAvatar(
+                      backgroundImage: _imageUrl != null ? NetworkImage(_imageUrl!) : null,
+                      backgroundColor: Colors.white24,
+                      child: _imageUrl == null
+                          ? const Icon(Icons.person, size: 40, color: Colors.white)
+                          : null,
                     ),
-                    onTap: () {
-                      final newLocale = context.locale.languageCode == 'ar'
-                          ? const Locale('en')
-                          : const Locale('ar');
-                      context.setLocale(newLocale);
+                    accountName: Text(
+                      name.toString().toUpperCase(),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    accountEmail: Text('$universityId | $email'),
+                  ),
+                  ExpansionTile(
+                    leading: const Icon(Icons.settings),
+                    title: Text(tr("settings")),
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.language),
+                        title: Text(
+                          context.locale.languageCode == 'ar' ? tr("english") : tr("arabic"),
+                        ),
+                        onTap: () {
+                          final newLocale = context.locale.languageCode == 'ar'
+                              ? const Locale('en')
+                              : const Locale('ar');
+                          context.setLocale(newLocale);
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.lock),
+                        title: Text(tr("change_password")),
+                        onTap: () => Navigator.pushNamed(context, '/change-password'),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.brightness_6),
+                        title: Text(tr("dark_mode")),
+                        onTap: () => ThemeManager.toggleTheme(),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.logout),
+                    title: Text(tr("logout")),
+                    onTap: () async {
+                      await _supabase.auth.signOut();
+                      if (!mounted) return;
+                      Navigator.pushReplacementNamed(context, '/login');
                     },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.lock),
-                    title: Text(tr("change_password")),
-                    onTap: () => Navigator.pushNamed(context, '/change-password'),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.brightness_6),
-                    title: Text(tr("dark_mode")),
-                    onTap: () => ThemeManager.toggleTheme(),
                   ),
                 ],
               ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: Text(tr("logout")),
-                onTap: () async {
-                  await _supabase.auth.signOut();
-                    if (!mounted) return;
-                  Navigator.pushReplacementNamed(context, '/login');
-                },
-              ),
-            ],
+            ),
           ),
         ),
       ),
-
-  )),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _courses.isEmpty
               ? Center(child: Text(tr("no_courses_found")))
               : RefreshIndicator(
                   onRefresh: _fetchCourses,
-                  child: ListView.builder(
-                    itemCount: _courses.length,
-                    itemBuilder: (context, index) {
-final course = _courses[index];
-                      return ListTile(
-title: Text(course['name']),
-                        subtitle: Text(tr("course_options")),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => StudentCourseStatsView(
-                                courseId: course['id'],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+              child: ListView.builder(
+  itemCount: _courses.length,
+  itemBuilder: (context, index) {
+    final course = _courses[index];
+    final startTime = course['start_time']?.toString().substring(0, 5) ?? '00:00';
+    final endTime = course['end_time']?.toString().substring(0, 5) ?? '00:00';
+    final scheduleText = '${tr("lecture_time")}: $startTime - $endTime';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          title: Text(
+            course['name'],
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6.0),
+            child: Text(
+              scheduleText,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+              ),
+            ),
+          ),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => StudentCourseStatsView(
+                  courseId: course['id'],
                 ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  },
+),
+   ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           if (userId != null) {
             Navigator.push(
               context,
               MaterialPageRoute(
-              //  builder: (_) => ChooseVerificationMethodView(userId: '',),
-              //
-                builder: (_) =>  FaceRecognitionView(userId:  Supabase.instance.client.auth.currentUser!.id),
+                builder: (_) => FaceRecognitionView(userId: Supabase.instance.client.auth.currentUser!.id),
               ),
             );
           } else {

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // ✅ تم إضافته
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_application_2/providers/theme_provider.dart';
-import 'package:flutter_application_2/views/Students/student_attendance_history_view.dart';
 import 'package:flutter_application_2/views/Students/student_home_view.dart';
 import 'package:flutter_application_2/views/admin/admin_dashboard_view.dart';
-import 'package:flutter_application_2/views/teacher/attendance_report_view.dart';
 import 'package:flutter_application_2/views/admin/create_teacher_view.dart';
 import 'package:flutter_application_2/views/admin/create_student_view.dart';
 import 'package:flutter_application_2/views/admin/manage_courses_view.dart';
@@ -15,20 +13,34 @@ import 'package:flutter_application_2/views/teacher/teacher_dashboard_view.dart'
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import 'views/ResetPasswordView.dart';
+import 'views/about_us.dart';
 import 'views/login_view.dart';
 import 'views/Students/face_recognition_view.dart';
 import 'views/Students/qr_scanner_view.dart';
 import 'views/admin/assign_students_view.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>(); 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-  await ThemeManager.loadTheme(); // ✅ تحميل الثيم المحفوظ
+  await ThemeManager.loadTheme();
 
   await Supabase.initialize(
     url: 'https://gnorslgqghumwmgoqwhk.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdub3JzbGdxZ2h1bXdtZ29xd2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMzA1MzUsImV4cCI6MjA2MDgwNjUzNX0.cXIYgB07hbk7r5Jx9niq1CxNiaK7Ddx8dqkPAQSwt0o',
   );
+
+//reset password
+  Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    final event = data.event;
+    final session = data.session;
+
+    if (event == AuthChangeEvent.passwordRecovery && session != null) {
+      navigatorKey.currentState?.pushNamed('/reset-password');
+    }
+  });
 
   runApp(
     EasyLocalization(
@@ -36,7 +48,7 @@ void main() async {
       path: 'lib/assets/lang',
       fallbackLocale: const Locale('ar'),
       child: ScreenUtilInit(
-        designSize: Size(390, 844), // ✅ الحجم القياسي لتناسب Android
+        designSize: Size(390, 844),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) {
@@ -44,6 +56,7 @@ void main() async {
             valueListenable: ThemeManager.themeNotifier,
             builder: (context, ThemeMode currentMode, _) {
               return MaterialApp(
+                navigatorKey: navigatorKey, 
                 title: 'Attendance System',
                 debugShowCheckedModeBanner: false,
                 theme: ThemeData.light(),
@@ -52,7 +65,6 @@ void main() async {
                 locale: context.locale,
                 supportedLocales: context.supportedLocales,
                 localizationsDelegates: context.localizationDelegates,
-               // useInheritedMediaQuery: true, 
                 initialRoute: '/',
                 routes: {
                   '/': (context) => const LoginView(),
@@ -61,18 +73,18 @@ void main() async {
                   '/admin': (context) => const AdminDashboardView(),
                   '/manage-users': (context) => const ManageUsersView(),
                   '/assign-students': (context) => const AssignStudentsView(),
-                  '/attendance-report': (context) => const AttendanceReportView(),
                   '/create-student': (context) => const CreateStudentView(),
                   '/face-verification': (context) =>
                       FaceRecognitionView(userId: Supabase.instance.client.auth.currentUser!.id),
                   '/qr-scanner': (context) => const QRScannerView(),
-                  '/attendance-history': (context) => const StudentAttendanceHistoryView(),
-               //   '/register-student': (context) => const StudentRegisterView(),
                   '/manage-courses': (context) => const ManageCoursesView(),
                   '/select-user-type-to-create': (context) => const CreateUserTypeView(),
                   '/create-teacher': (context) => const CreateTeacherView(),
                   '/login': (context) => const LoginView(),
                   '/change-password': (context) => const ChangePasswordView(),
+                  '/reset-password': (context) => const ResetPasswordView(),
+                      '/about-us': (context) => const AboutUsView(),
+
                 },
               );
             },
@@ -82,82 +94,3 @@ void main() async {
     ),
   );
 }
-
-
-/* 
- import 'package:flutter/material.dart';
-import 'package:flutter_application_2/providers/theme_provider.dart';
-import 'package:flutter_application_2/views/Students/student_attendance_history_view.dart';
-import 'package:flutter_application_2/views/Students/student_home_view.dart';
-import 'package:flutter_application_2/views/admin/admin_dashboard_view.dart';
-import 'package:flutter_application_2/views/teacher/attendance_report_view.dart';
-import 'package:flutter_application_2/views/admin/create_teacher_view.dart';
-import 'package:flutter_application_2/views/admin/create_student_view.dart';
-import 'package:flutter_application_2/views/admin/manage_courses_view.dart';
-import 'package:flutter_application_2/views/admin/manage_users_view.dart';
-import 'package:flutter_application_2/views/admin/select_user_type_to_create.dart';
-import 'package:flutter_application_2/views/change_password_view.dart';
-import 'package:flutter_application_2/views/teacher/teacher_dashboard_view.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:easy_localization/easy_localization.dart';
-
-
-import 'views/login_view.dart';
-import 'views/Students/face_recognition_view.dart';
-import 'views/Students/qr_scanner_view.dart';
-import 'views/admin/assign_students_view.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
-  await ThemeManager.loadTheme(); // ✅ تحميل الثيم المحفوظ
-
-  await Supabase.initialize(
-    url: 'https://gnorslgqghumwmgoqwhk.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdub3JzbGdxZ2h1bXdtZ29xd2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMzA1MzUsImV4cCI6MjA2MDgwNjUzNX0.cXIYgB07hbk7r5Jx9niq1CxNiaK7Ddx8dqkPAQSwt0o',
-  );
-
-  runApp(
-    EasyLocalization(
-      supportedLocales: const [Locale('en'), Locale('ar')],
-      path: 'lib/assets/lang',
-      fallbackLocale: const Locale('ar'),
-      child: ValueListenableBuilder(
-        valueListenable: ThemeManager.themeNotifier,
-        builder: (context, ThemeMode currentMode, _) {
-          return MaterialApp(
-            title: 'Attendance System',
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
-            themeMode: currentMode,
-            locale: context.locale,
-            supportedLocales: context.supportedLocales,
-            localizationsDelegates: context.localizationDelegates,
-            initialRoute: '/',
-            routes: {
-              '/': (context) => const LoginView(),
-              '/student': (context) => const StudentHomeView(),
-              '/teacher': (context) => const TeacherDashboardView(),
-              '/admin': (context) => const AdminDashboardView(),
-              '/manage-users': (context) => const ManageUsersView(),
-              '/assign-students': (context) => const AssignStudentsView(),
-              '/attendance-report': (context) => const AttendanceReportView(),
-              '/create-student': (context) => const CreateStudentView(),
-              '/face-verification': (context) =>
-                  FaceRecognitionView(userId: Supabase.instance.client.auth.currentUser!.id),
-              '/qr-scanner': (context) => const QRScannerView(),
-              '/attendance-history': (context) => const StudentAttendanceHistoryView(),
-           //   '/register-student': (context) => const StudentRegisterView(),
-              '/manage-courses': (context) => const ManageCoursesView(),
-              '/select-user-type-to-create': (context) => const CreateUserTypeView(),
-              '/create-teacher': (context) => const CreateTeacherView(),
-              '/login': (context) => const LoginView(),
-              '/change-password': (context) => const ChangePasswordView(),
-            },
-          );
-        },
-      ),
-    ),
-  );
-} */

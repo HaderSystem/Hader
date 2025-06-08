@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class QRScannerView extends StatefulWidget {
   const QRScannerView({super.key});
@@ -21,11 +22,8 @@ class _QRScannerViewState extends State<QRScannerView> {
     super.initState();
 
     _scannerTimeoutTimer = Timer(const Duration(seconds: 20), () {
-      if (!_scanned) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('⏱️ انتهى الوقت المسموح للمسح')),
-        );
-        Navigator.pop(context);
+      if (!_scanned && mounted) {
+        _showError("scan_timeout_msg".tr());
       }
     });
   }
@@ -41,8 +39,19 @@ class _QRScannerViewState extends State<QRScannerView> {
     _scanned = true;
     _scannerTimeoutTimer?.cancel();
 
-    final lectureId = code.trim();
+    print("📦 Scanned QR Code Raw Value: $code");
+
+    final parts = code.split('-');
+    if (parts.length < 2) {
+      _showError("رمز غير صالح");
+      return;
+    }
+
+    final lectureId = parts.sublist(0, parts.length - 1).join('-');
     final studentId = _supabase.auth.currentUser?.id;
+
+    print("🧠 Parsed lectureId: $lectureId");
+    print("👤 Current studentId: $studentId");
 
     if (lectureId.isNotEmpty && studentId != null) {
       setState(() => _isLoading = true);
@@ -55,10 +64,31 @@ class _QRScannerViewState extends State<QRScannerView> {
             .eq('student_id', studentId);
 
         if (existing.isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("📌 تم تسجيل حضورك مسبقًا")),
-          );
-          Navigator.pop(context);
+          _showError("already_marked".tr());
+          return;
+        }
+
+        final lecture = await _supabase
+            .from('lectures')
+            .select('course_id')
+            .eq('id', lectureId)
+            .maybeSingle();
+
+        if (lecture == null) {
+          _showError("المحاضرة غير موجودة");
+          return;
+        }
+
+        final courseId = lecture['course_id'];
+
+        final enrolled = await _supabase
+            .from('student_courses')
+            .select()
+            .eq('student_id', studentId)
+            .eq('course_id', courseId);
+
+        if (enrolled.isEmpty) {
+          _showError("أنت غير مسجل في هذا الكورس");
           return;
         }
 
@@ -68,33 +98,51 @@ class _QRScannerViewState extends State<QRScannerView> {
           'status': 'present',
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ تم تسجيل الحضور بنجاح")),
-        );
-        Navigator.pop(context);
-      } catch (e) {
-        print('❌ خطأ أثناء التسجيل: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("حدث خطأ أثناء تسجيل الحضور ❌")),
-        );
-        Navigator.pop(context);
+        _showSuccess("attendance_success".tr());
+      } catch (e, stack) {
+        print('❌ Error during attendance insert: $e');
+        print('🧱 StackTrace: $stack');
+        _showError("attendance_error".tr());
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }
     }
   }
 
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Center(child: Text(message)),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    Navigator.pop(context);
+  }
+
+  void _showSuccess(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Center(child: Text(message)),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("مسح رمز الحضور"),
+        title: Text("scan_title".tr()),
         centerTitle: true,
       ),
       body: Stack(
         children: [
           MobileScanner(
             key: UniqueKey(),
+            fit: BoxFit.cover,
             onDetect: (capture) {
               final barcode = capture.barcodes.first;
               final code = barcode.rawValue;
@@ -105,10 +153,8 @@ class _QRScannerViewState extends State<QRScannerView> {
           ),
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              color: Colors.black.withOpacity(0.6),
+              child: const Center(child: CircularProgressIndicator()),
             ),
         ],
       ),

@@ -12,8 +12,9 @@ class AttendanceListView extends StatefulWidget {
 
 class _AttendanceListViewState extends State<AttendanceListView> {
   final _supabase = Supabase.instance.client;
-  List<dynamic> present = [];
-  List<dynamic> absent = [];
+
+  List<String> present = [];
+  List<String> absent = [];
 
   @override
   void initState() {
@@ -31,10 +32,24 @@ class _AttendanceListViewState extends State<AttendanceListView> {
 
       final courseId = lecture['course_id'];
 
+      // 1. Get all student UUIDs in this course
       final studentsInCourse = await _supabase
           .from('student_courses')
           .select('student_id')
           .eq('course_id', courseId);
+
+      final studentUUIDs = studentsInCourse
+          .map((s) => s['student_id'] as String)
+          .toList();
+
+      final studentDetails = await _supabase
+          .from('students')
+          .select('id, student_id');
+
+      final studentIdToNumber = {
+        for (var s in studentDetails)
+          s['id']: s['student_id'].toString()
+      };
 
       final attended = await _supabase
           .from('attendance')
@@ -42,18 +57,28 @@ class _AttendanceListViewState extends State<AttendanceListView> {
           .eq('lecture_id', widget.lectureId);
 
       final presentIds = attended.map((a) => a['student_id']).toSet();
-      final allStudents = studentsInCourse.map((s) => s['student_id']).toSet();
+      final allStudentIds = studentIdToNumber.keys.toSet();
 
       setState(() {
-        present = presentIds.toList();
-        absent = allStudents.difference(presentIds).toList();
+        present = presentIds
+            .map((id) => studentIdToNumber[id])
+            .whereType<String>()
+            .toList()
+            .cast<String>();
+
+        absent = allStudentIds
+            .difference(presentIds)
+            .map((id) => studentIdToNumber[id])
+            .whereType<String>()
+            .toList()
+            .cast<String>();
       });
     } catch (e) {
       print('❌ Error fetching attendance: $e');
     }
   }
 
-  Widget _buildList(String title, List<dynamic> users, Color color) {
+  Widget _buildList(String title, List<String> users, Color color) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(12),
@@ -99,7 +124,7 @@ class _AttendanceListViewState extends State<AttendanceListView> {
                         child: ListTile(
                           leading: Icon(Icons.person, color: color),
                           title: Text(
-                            users[index].toString(),
+                            users[index],
                             style: const TextStyle(fontSize: 16),
                           ),
                         ),

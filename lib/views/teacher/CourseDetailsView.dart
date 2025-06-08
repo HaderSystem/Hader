@@ -49,7 +49,7 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
         }
       });
     } catch (e) {
-      print("❌ Error loading lectures: $e");
+      print(" Error loading lectures: $e");
     }
   }
 
@@ -78,7 +78,7 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
         students = List<Map<String, dynamic>>.from(studentsRes);
       });
     } catch (e) {
-      print("❌ Error loading students: $e");
+      print(" Error loading students: $e");
     }
   }
 
@@ -99,7 +99,7 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
             .toSet();
       });
     } catch (e) {
-      print("❌ Error loading attendance: $e");
+      print(" Error loading attendance: $e");
     }
   }
 
@@ -161,7 +161,7 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
 
     if (!isTimeAllowed) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⛔ الوقت غير مسموح بإنشاء محاضرة الآن")),
+        const SnackBar(content: Text(" الوقت غير مسموح بإنشاء محاضرة الآن")),
       );
       return;
     }
@@ -174,7 +174,7 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
 
     if (existing.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ تم إنشاء محاضرة بالفعل اليوم لهذا الكورس")),
+        const SnackBar(content: Text(" تم إنشاء محاضرة بالفعل اليوم لهذا الكورس")),
       );
       return;
     }
@@ -186,7 +186,7 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
 
     await _loadLectures();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("✅ تم إنشاء المحاضرة")),
+      const SnackBar(content: Text(" تم إنشاء المحاضرة")),
     );
   }
 

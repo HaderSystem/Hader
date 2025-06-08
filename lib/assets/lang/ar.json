@@ -88,12 +88,15 @@
   "arabic": "العربية",
   "course_description": "وصف الكورس",
   
+
   
   "start_date": "تاريخ البداية",
   "end_date": "تاريخ النهاية",
   "start_time": "وقت البدء",
   "end_time": "وقت الانتهاء",
   "lecture_days": "أيام المحاضرات",
+  "lecture_time":"وقت المحاضرة",
+
   "edit_course": "تعديل كورس",
   "add": "إضافة",
    "Sun": "الأحد",
@@ -121,7 +124,44 @@
   "reset_email_sent": " تم إرسال رابط إعادة التعيين إلى بريدك",
   "reset_success": " تم تغيير كلمة المرور",
   "reset_failed": " فشل تغيير كلمة المرور",
-  "invalid_email": "يرجى إدخال بريد إلكتروني صحيح"
+  "invalid_email": "يرجى إدخال بريد إلكتروني صحيح",
+    "attendance_statistics": "إحصائيات الحضور",
+  "total_lectures": "📚 عدد المحاضرات",
+  "present": "✅ الحضور",
+  "absent": "❌ الغياب",
+  "absence_warning": "⚠️ تنبيه: تجاوزت الحد المسموح من الغيابات!",
+  "scan_title": "مسح رمز الحضور",
+  "scan_timeout_msg": " انتهى الوقت المسموح للمسح",
+  "already_marked": " تم تسجيل حضورك مسبقًا",
+  "attendance_success": "✅ تم تسجيل الحضور بنجاح",
+  "attendance_error": "❌ حدث خطأ أثناء تسجيل الحضور",
+   "face_verification": "التحقق من الوجه",
+  "loading_face": " جاري تحميل صورة الطالب من الخادم...",
+  "capture_face": " التقط صورة لوجهك للتحقق",
+  "comparing_faces": " يتم الآن مقارنة الوجوه...",
+  "no_face_found": "لا توجد صورة مخزنة لهذا الطالب",
+  "face_verification_failed": "فشل التحقق من الوجه",
+  "verification_timeout": " ⏱ انتهت مهلة التحقق، حاول مرة أخرى",
+  "error_verifying_face": "حدث خطأ أثناء التحقق",
+  "face_not_match": "وجه غير مطابق",
+  "similarity": "نسبة التطابق",
+  "try_again": "حاول مرة أخرى",
+  "ok": "موافق",
+  "no_matching": "لا يوجد تطابق، الرجاء عدم الغش بالحضور❌ !",
+  "about_us_description": "نظام حاضر هو نظام ذكي لإدارة حضور الطلاب باستخدام بصمة الوجه ورمز الاستجابة السريعة QR، تم تطويره كمشروع تخرج من قبل فريق طلابي في جامعة العلوم والتكنولوجيا الأردنية بهدف تحسين دقة وسرعة تتبع الحضور والغياب.",
+"about_us": "من نحن",
+
+  "no_internet": "لا يوجد اتصال بالإنترنت. تأكد من الشبكة.",
+  "absent_dates": "أيام الغياب",
+  "current_password": "كلمة المرور الحالية",
+  "confirm_new_password": "تأكيد كلمة المرور الجديدة",
+  "enter_current_password": "أدخل كلمة المرور الحالية",
+  "enter_confirm_password": "أدخل تأكيد كلمة المرور",
+  "password_min_length": "يجب أن تكون 6 أحرف على الأقل",
+  "passwords_not_matching": "كلمة المرور الجديدة غير متطابقة",
+  "password_changed_successfully": "تم تغيير كلمة المرور بنجاح",
+  "password_change_error": "حدث خطأ أثناء تغيير كلمة المرور",
+  "error": "خطأ"
 }
 
 

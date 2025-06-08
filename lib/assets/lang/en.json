@@ -93,7 +93,7 @@
   "lecture_days": "Lecture Days",
   "edit_course": "Edit Course",
   "add": "Add",
-  
+  "lecture_time":"Lecture Time",
   "Sun": "Sunday",
   "Mon": "Monday",
   "Tue": "Tuesday",
@@ -122,7 +122,48 @@
   "reset_email_sent": "📩 Reset link sent to your email",
   "reset_success": "✅ Password changed successfully",
   "reset_failed": "❌ Failed to change password",
-  "invalid_email": "Please enter a valid email"
+  "invalid_email": "Please enter a valid email",
+  "attendance_statistics": "Attendance Statistics",
+  "total_lectures": "📚 Total Lectures",
+  "present": "✅ Present",
+  "absent": "❌ Absent",
+  "absence_warning": "⚠️ Warning: You have exceeded the allowed absence limit!",
+  "scan_title": "Scan Attendance QR",
+  "scan_timeout_msg": " Time for scanning has ended",
+  "already_marked": " You have already marked your attendance",
+  "attendance_success": " Attendance recorded successfully",
+  "attendance_error": "❌ Error occurred while recording attendance",
+   "face_verification": "Face Verification",
+  "loading_face": " Loading student face from server...",
+  "capture_face": " Capture your face to verify",
+  "comparing_faces": " Comparing faces...",
+  "no_face_found": "No stored face found for this student",
+  "face_verification_failed": "Face verification failed",
+  "verification_timeout": " ⏱ Verification timed out, try again",
+  "error_verifying_face": "An error occurred during verification",
+  "face_not_match": "Face mismatch",
+  "similarity": "Similarity",
+  "try_again": "Try again",
+  "ok": "OK",
+  "no_matching": "❌ No Matching, Please don't cheat !",
+
+  "about_us_description": "Hader is a smart student attendance management system using facial recognition and QR codes. It was developed as a graduation project by a student team at JUST University with the aim of improving the accuracy and speed of attendance tracking.",
+  
+  "about_us":"about us",
+  "email_not_confirmed": "Please confirm your email before logging in.",
+  "invalid_email_format": "Invalid email format.",
+  "no_internet": "Check your internet connection please.",
+  "absent_dates": "Absent Dates",
+  "current_password": "Current Password",
+  "confirm_new_password": "Confirm New Password",
+  "enter_current_password": "Enter current password",
+  "enter_confirm_password": "Enter confirm password",
+  "password_min_length": "Must be at least 6 characters",
+  "passwords_not_matching": "New passwords do not match",
+  "password_changed_successfully": "Password changed successfully",
+  "password_change_error": "An error occurred while changing the password",
+  "error": "Error"
+ 
 }
 
 

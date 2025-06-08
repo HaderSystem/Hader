@@ -1,3 +1,4 @@
+// this page helps admin to manage users, view their details and delete them
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -111,10 +112,12 @@ class _ManageUsersViewState extends State<ManageUsersView> {
 
   @override
   Widget build(BuildContext context) {
+        final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(tr("manage_users")),
-        backgroundColor: const Color(0xFF002D62),
+        backgroundColor: colorScheme.primary,
         actions: [
           IconButton(
             icon: const Icon(Icons.language),
@@ -131,7 +134,7 @@ class _ManageUsersViewState extends State<ManageUsersView> {
               borderRadius: BorderRadius.circular(10.r),
               borderColor: Colors.grey,
               selectedColor: Colors.white,
-              fillColor: const Color(0xFF002D62),
+              fillColor: colorScheme.primary,
               isSelected: [
                 _selectedRole == 'student',
                 _selectedRole == 'teacher',
@@ -209,233 +212,3 @@ class _ManageUsersViewState extends State<ManageUsersView> {
     );
   }
 }
-
-
-/* import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:easy_localization/easy_localization.dart';
-import '../../services/supabase_service.dart';
-
-import 'package:http/http.dart' as http;
-
-class ManageUsersView extends StatefulWidget {
-  const ManageUsersView({super.key});
-
-  @override
-  State<ManageUsersView> createState() => _ManageUsersViewState();
-}
-
-class _ManageUsersViewState extends State<ManageUsersView> {
-  final _supabase = Supabase.instance.client;
-  List<User> _users = [];
-  String _selectedRole = 'student';
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchUsers();
-  }
-
-  Future<void> _fetchUsers() async {
-    final response = await SupabaseService.admin.auth.admin.listUsers();
-    final filtered = response
-        .where((u) =>
-            u.userMetadata != null && u.userMetadata!['role'] == _selectedRole)
-        .toList();
-        if (mounted){
-    setState(() {
-      _users = filtered;
-    });
-        }
-  }
-
-Future<void> _deleteUser(String id) async {
-  try {
-    final response = await http.delete(
-      Uri.parse('https://student-api-sgwe.onrender.com/delete_user/$id'),
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr("user_deleted"))),
-      );
-      _fetchUsers(); // إعادة تحميل القائمة
-    } else {
-      print(" فشل في حذف المستخدم: ${response.body}");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr("delete_failed"))),
-      );
-    }
-  } catch (e) {
-    print(' خطأ في الاتصال بالسيرفر: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(tr("delete_failed"))),
-    );
-  }
-}
-
-  void _showUserDetails(User user) async {
-    final metadata = user.userMetadata ?? {};
-
-    final universityId = metadata['student_id']?.toString()
-    ?? metadata['employee_id']?.toString()
-    ?? tr("no_id");
-
-    String? imageUrl;
-
-    try {
-      imageUrl = await _supabase.storage
-          .from('faces')
-          .createSignedUrl('${user.id}.jpg', 60);
-    } catch (e) {
-      print('No image found for user ${user.id}');
-    }
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(tr("user_details")),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (imageUrl != null)
-              Center(
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(imageUrl),
-                  radius: 40,
-                ),
-              ),
-            const SizedBox(height: 12),
-            
-           Text("${tr("university_id")}: ${metadata['student_id'] ?? metadata['employee_id'] ?? tr("not_available")}"),
-
-
-            Text("${tr("email")}: ${user.email ?? tr("not_available")}"),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(tr("close")),
-          )
-        ],
-        
-      ),
-      
-
-    );
-    print("🎯 Metadata كامل: $metadata");
-
-  }
-
-  void _toggleLanguage() {
-    final currentLocale = context.locale;
-    final newLocale =
-        currentLocale.languageCode == 'ar' ? const Locale('en') : const Locale('ar');
-    context.setLocale(newLocale);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(tr("manage_users")),
-        backgroundColor: const Color(0xFF002D62),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language),
-            onPressed: _toggleLanguage,
-            tooltip: tr("change_language"),
-          )
-        ],
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 16),
-          ToggleButtons(
-            borderRadius: BorderRadius.circular(10),
-            borderColor: Colors.grey,
-            selectedColor: Colors.white,
-            fillColor: const Color(0xFF002D62),
-            isSelected: [
-              _selectedRole == 'student',
-              _selectedRole == 'teacher',
-            ],
-            onPressed: (index) {
-              final role = index == 0 ? 'student' : 'teacher';
-              setState(() => _selectedRole = role);
-              _fetchUsers();
-            },
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(tr("students")),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(tr("teachers")),
-              ),
-            ],
-          ),
-          const Divider(thickness: 1.2),
-          Expanded(
-            child: _users.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    itemCount: _users.length,
-                    itemBuilder: (_, index) {
-                      final user = _users[index];
-                    final universityId =
-    user.userMetadata?['student_id']?.toString() ??
-    user.userMetadata?['employee_id']?.toString() ??
-    tr("no_id");
-
-
-
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 6),
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          title: Text(universityId,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(user.email ?? tr("no_email")),
-                          trailing: PopupMenuButton<String>(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                            onSelected: (value) {
-                              if (value == 'view') {
-                                _showUserDetails(user);
-                              } else if (value == 'delete') {
-                                _deleteUser(user.id);
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                value: 'view',
-                                child: Text(tr("view_details")),
-                              ),
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Text(tr("delete_user")),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-}
- */

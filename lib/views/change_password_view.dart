@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ChangePasswordView extends StatefulWidget {
   const ChangePasswordView({super.key});
@@ -26,7 +27,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
     final confirmPassword = _confirmPasswordController.text.trim();
 
     if (newPassword != confirmPassword) {
-      _showMessage("كلمة المرور الجديدة غير متطابقة");
+      _showMessage(tr("passwords_not_matching"));
       setState(() => _isLoading = false);
       return;
     }
@@ -37,13 +38,13 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
       );
 
       if (response.user != null) {
-        _showMessage("تم تغيير كلمة المرور بنجاح");
+        _showMessage(tr("password_changed_successfully"));
         Navigator.pop(context);
       } else {
-        _showMessage("حدث خطأ أثناء تغيير كلمة المرور");
+        _showMessage(tr("password_change_error"));
       }
     } catch (e) {
-      _showMessage("خطأ: ${e.toString()}");
+      _showMessage("${tr("error")}: ${e.toString()}");
     }
 
     setState(() => _isLoading = false);
@@ -56,7 +57,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("تغيير كلمة المرور")),
+      appBar: AppBar(title: Text(tr("change_password"))),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -71,36 +72,36 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                   children: [
                     TextFormField(
                       controller: _currentPasswordController,
-                      decoration: const InputDecoration(
-                        labelText: 'كلمة المرور الحالية',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: tr("current_password"),
+                        border: const OutlineInputBorder(),
                       ),
                       obscureText: true,
                       validator: (value) =>
-                          value!.isEmpty ? 'أدخل كلمة المرور الحالية' : null,
+                          value!.isEmpty ? tr("enter_current_password") : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _newPasswordController,
-                      decoration: const InputDecoration(
-                        labelText: 'كلمة المرور الجديدة',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: tr("new_password"),
+                        border: const OutlineInputBorder(),
                       ),
                       obscureText: true,
                       validator: (value) => value!.length < 6
-                          ? 'يجب أن تكون 6 أحرف على الأقل'
+                          ? tr("password_min_length")
                           : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _confirmPasswordController,
-                      decoration: const InputDecoration(
-                        labelText: 'تأكيد كلمة المرور الجديدة',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: tr("confirm_new_password"),
+                        border: const OutlineInputBorder(),
                       ),
                       obscureText: true,
                       validator: (value) =>
-                          value!.isEmpty ? 'أدخل تأكيد كلمة المرور' : null,
+                          value!.isEmpty ? tr("enter_confirm_password") : null,
                     ),
                     const SizedBox(height: 24),
                     SizedBox(
@@ -122,7 +123,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Text("حفظ", style: TextStyle(fontSize: 16)),
+                            : Text(tr("save"), style: const TextStyle(fontSize: 16)),
                       ),
                     ),
                   ],

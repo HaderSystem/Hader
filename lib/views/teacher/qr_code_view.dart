@@ -19,7 +19,7 @@ class _QRCodeViewState extends State<QRCodeView> {
   void initState() {
     super.initState();
     _updateQR();
-    _timer = Timer.periodic(const Duration(milliseconds: 5000), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       _updateQR();
     });
   }
@@ -86,14 +86,14 @@ class _QRCodeViewState extends State<QRCodeView> {
                     ),
                   );
                 },
-                child: const Text("View Attendance List"),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
+                child: const Text("View Attendance List"),
               )
             ],
           ),
