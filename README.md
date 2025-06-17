@@ -41,13 +41,6 @@ To digitize and secure the attendance process in educational institutions using 
 
 ---
 
-## 📸 Screenshots
-
-| Student View | Teacher View | Admin View |
-|--------------|--------------|------------|
-| ![student](screenshots/student_home.png) | ![teacher](screenshots/teacher_dashboard.png) | ![admin](screenshots/admin_manage.png) |
-
----
 
 ## 🧑‍💻 How to Run
 
@@ -60,8 +53,7 @@ To digitize and secure the attendance process in educational institutions using 
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/hader.git
-cd hader
+git clone https://github.com/HaderSystem/Hader/tree/lastProj)
 
 # 2. Install dependencies
 flutter pub get
