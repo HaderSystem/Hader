@@ -1,16 +1,70 @@
-# flutter_application_2
+# 📚 Hader – Smart Attendance System
 
-A new Flutter project.
+> **Hader** is an intelligent attendance system that uses **QR code scanning** and **face recognition** to ensure secure, fraud-proof attendance tracking for university students.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🎯 Project Objective
 
-A few resources to get you started if this is your first Flutter project:
+To digitize and secure the attendance process in educational institutions using biometric verification and real-time session validation through scheduled lectures.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Key Features
+
+- ✅ Student check-in via **dynamic QR code**
+- ✅ Identity verification using **Face Recognition API**
+- ✅ Role-based dashboards:
+  - 👨‍🎓 Student
+  - 👨‍🏫 Teacher
+  - 👮‍♂️ Security
+  - 👩‍💼 Admin
+- ✅ Course and lecture scheduling (date, time, days of the week)
+- ✅ Attendance tracking and history display
+- ✅ Multi-language support (Arabic 🇸🇦 / English 🇬🇧)
+- ✅ Light/Dark mode toggle
+- ✅ Face image uploads to Supabase Storage
+- ✅ Supabase Row Level Security (RLS) policies for data protection
+
+---
+
+## 🛠️ Tech Stack
+
+| Area         | Tools/Technologies                        |
+|--------------|-------------------------------------------|
+| Frontend     | Flutter, Dart, Easy Localization          |
+| Backend      | Node.js (Express.js)                      |
+| Auth & DB    | Supabase (PostgreSQL, Auth, Storage)      |
+| Face API     | Face++ (Third-party API integration)      |
+| QR Code      | `qr_flutter`, `mobile_scanner` packages   |
+| Hosting      | Render (for Node.js server deployment)    |
+
+---
+
+## 📸 Screenshots
+
+| Student View | Teacher View | Admin View |
+|--------------|--------------|------------|
+| ![student](screenshots/student_home.png) | ![teacher](screenshots/teacher_dashboard.png) | ![admin](screenshots/admin_manage.png) |
+
+---
+
+## 🧑‍💻 How to Run
+
+### Prerequisites
+- Flutter SDK installed
+- Supabase project set up (with proper tables and policies)
+- Node.js installed (for the backend API)
+
+### Steps
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/hader.git
+cd hader
+
+# 2. Install dependencies
+flutter pub get
+
+# 3. Run the app
+flutter run
