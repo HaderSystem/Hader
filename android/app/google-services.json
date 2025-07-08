@@ -1,15 +1,14 @@
 {
   "project_info": {
-    "project_number": "1012870430817",
-    "project_id": "hadersystem1",
-    "storage_bucket": "hadersystem1.firebasestorage.app"
-  },
+    "project_number": "1012870430818",
+    "project_id": "movieapp"
+    },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:1012870430817:android:5042217d9e873e461d6a20",
         "android_client_info": {
-          "package_name": "com.example.flutter_application_2"
+          "package_name": "com.example.flutter_application_1"
         }
       },
       "oauth_client": [],
