@@ -1,34 +1,34 @@
-# 📚 Hader – Smart Attendance System
+#  Hader – Smart Attendance System
 
 > **Hader** is an intelligent attendance system that uses **QR code scanning** and **face recognition** to ensure secure, fraud-proof attendance tracking for university students.
 
 ---
 
-## 🎯 Project Objective
+##  Project Objective
 
 To digitize and secure the attendance process in educational institutions using biometric verification and real-time session validation through scheduled lectures.
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
-- ✅ Student check-in via **dynamic QR code**
-- ✅ Identity verification using **Face Recognition API**
-- ✅ Role-based dashboards:
-  - 👨‍🎓 Student
-  - 👨‍🏫 Teacher
-  - 👮‍♂️ Security
-  - 👩‍💼 Admin
-- ✅ Course and lecture scheduling (date, time, days of the week)
-- ✅ Attendance tracking and history display
-- ✅ Multi-language support (Arabic 🇸🇦 / English 🇬🇧)
-- ✅ Light/Dark mode toggle
-- ✅ Face image uploads to Supabase Storage
-- ✅ Supabase Row Level Security (RLS) policies for data protection
+- * Student check-in via **dynamic QR code**
+- * Identity verification using **Face Recognition API**
+- * Role-based dashboards:
+  -  Student
+  -  Teacher
+  -  Security
+  -  Admin
+- * Course and lecture scheduling (date, time, days of the week)
+- * Attendance tracking and history display
+- * Multi-language support (Arabic 🇸🇦 / English 🇬🇧)
+- * Light/Dark mode toggle
+- * Face image uploads to Supabase Storage
+- * Supabase Row Level Security (RLS) policies for data protection
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Area         | Tools/Technologies                        |
 |--------------|-------------------------------------------|
@@ -42,7 +42,7 @@ To digitize and secure the attendance process in educational institutions using 
 ---
 
 
-## 🧑‍💻 How to Run
+##  How to Run
 
 ### Prerequisites
 - Flutter SDK installed
